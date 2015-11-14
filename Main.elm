@@ -33,13 +33,24 @@ type alias Week =
 
 emptyModel : Model
 emptyModel =
-    { weeks = List.map (\i -> Week i (weekColor i)) [1..700]
+    { weeks = List.map (\i -> Week i (weekColor i)) [0..52*50-1]
     , lifeExpectancy = 80
     }
 
 weekColor : Int -> Color
 weekColor number =
-  (rgb ((number%weekPerRow)*round (255/weekPerRow)) 100 10)
+  if number < 5 then
+    rgb 255 255 255
+  else if number < 52*4-4*4 then
+    rgb 50 100 100
+  else if number < 52*18-4*4 then
+    rgb 50 100 150
+  else if number < 52*24-4*9 then
+    rgb 100 100 200
+  else if number < 52*26-6 then
+    rgb 100 200 200
+  else
+    rgb 100 220 100
 
 weekPerRow = 52
 
@@ -90,15 +101,21 @@ weekDiv week =
     ("display", "inline-block")
   , ("width", "20px")
   , ("height", "20px")
-  , ("border", "1px solid #ccc")
+  , ("border", "1px solid #555")
   , ("background-color", (colorToCss week.color)) ] ]
-  [ text (toString (week.number%weekPerRow)) ]
+  [ text "." ]
+  -- [ text (toString (week.number%weekPerRow)) ]
 
 weekList : Address Action -> List Week -> Html
 weekList address weeks =
   let el week =
     if week.number % weekPerRow == 0 then
-      [weekDiv week, div [] []]
+      [ div [] []
+      , div
+        [ style [ ("display", "inline-block"), ("width", "20px") ] ]
+        [ text (toString (floor (toFloat week.number/52) + 1)) ]
+      , weekDiv week
+      ]
     else
       [weekDiv week]
   in
