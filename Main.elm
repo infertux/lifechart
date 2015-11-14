@@ -15,12 +15,13 @@ import Window
 ---- MODEL ----
 
 type alias Model =
-  { weeks : List Week
+  { zoomLevel : ZoomLevel
+  , squares : List Square
   , lifeExpectancy : Float
   , birthDate : Date
   }
 
-type alias Week =
+type alias Square =
   { number : Int
   , activities : List Activity
   , countries : List Country
@@ -48,6 +49,11 @@ type alias Activity =
   , color : Color
   }
 
+type ZoomLevel -- size of 1 square
+  = Day
+  | Week
+  | Month
+
 dummyActivities =
   [ Activity "Baby"         (rgb  50 100 100)
   , Activity "Lower School" (rgb  50 100 150)
@@ -62,23 +68,25 @@ dummyCountries =
   , Country "DE" "Germany"
   ]
 
-newWeek : Int -> Week
-newWeek number =
-  Week number (List.take 2 dummyActivities) dummyCountries
+newSquare : Int -> Square
+newSquare number =
+  Square number (List.take 2 dummyActivities) dummyCountries
 
 dummyModel : Model
 dummyModel =
-    { weeks = List.map (\i -> newWeek i) [0..52*50-1]
+    { zoomLevel = Month
+    , squares = List.map (\i -> newSquare i) [0..52*50-1]
     , lifeExpectancy = 80
     , birthDate = dummyBirthDate
     }
 
 dummyBirthDate = Date.fromTime (647948800*1000)
-weekPerRow = 52
+squarePerRow = 12 -- what about using Months as base unit?
+-- merge squares when attributes are identical?
 
-weekColor : Week -> Color
-weekColor week =
-  List.head (List.map .color week.activities) -- do a OR of colors instead of taking head?
+squareColor : Square -> Color
+squareColor square =
+  List.head (List.map .color square.activities) -- do a OR of colors instead of taking head?
   |> Maybe.withDefault (rgb 255 255 255)
   -- if number < (Date.day dummyBirthDate) // 7 then -- FIXME
   --   rgb 255 255 255
@@ -128,49 +136,49 @@ view address model =
       [ section [] [ text (dateToISO model.birthDate) ]
       , section
           [ id "lifechart" ]
-          [ weekList address model.weeks
+          [ squareList address model.squares
           -- , lazy3 controls address model.visibility model.tasks
           ]
       , infoFooter
       ]
 
-weekDivSize = if weekPerRow >= 52 then 20 else 200
-weekDiv : Week -> Html
-weekDiv week =
+squareDivSize = if squarePerRow >= 52 then 20 else 80
+squareDiv : Square -> Html
+squareDiv square =
   div
-  [ class "week", style [
+  [ class "square", style [
     ("display", "inline-block")
-  , ("width", toString weekDivSize ++ "px")
-  , ("height", toString weekDivSize ++ "px")
-  , ("border", "1px solid #555")
+  , ("width", toString squareDivSize ++ "px")
+  , ("height", toString squareDivSize ++ "px")
+  , ("border", "1px dotted #555")
   , ("overflow", "hidden")
-  , ("font-size", "6px")
-  , ("background-color", (colorToCss (weekColor week))) ] ]
-  (List.map countryDiv week.countries)
+  , ("font-size", "8px")
+  , ("background-color", (colorToCss (squareColor square))) ] ]
+  (List.map countryDiv square.countries)
 
 countryDiv : Country -> Html
 countryDiv country =
   div [ style [ ("float", "right") ] ] [ text country.code ]
 
-weekList : Address Action -> List Week -> Html
-weekList address weeks =
-  let el week =
-    if week.number % weekPerRow == 0 then
+squareList : Address Action -> List Square -> Html
+squareList address squares =
+  let el square =
+    if square.number % squarePerRow == 0 then
       [ div [] []
       , div
-        [ style [ ("display", "inline-block"), ("width", toString weekDivSize ++ "px") ] ]
-        [ text (toString (floor (toFloat week.number/52) + 1)) ]
-      , weekDiv week
+        [ style [ ("display", "inline-block"), ("width", toString squareDivSize ++ "px") ] ]
+        [ text (toString (floor (toFloat square.number/52) + 1)) ]
+      , squareDiv square
       ]
     else
-      [weekDiv week]
+      [squareDiv square]
   in
-    div [] (List.concat (List.map el weeks))
+    div [] (List.concat (List.map el squares))
 
 infoFooter : Html
 infoFooter =
     footer [ id "info" ]
-      [ p [] [ text "Double-click to edit a week" ]
+      [ p [] [ text "Double-click to edit a square" ]
       , p []
           [ text "Inspired by "
           , a [ href "http://i.imgur.com/67aHKhF.jpg" ] [ text "this chart" ]
