@@ -7,6 +7,7 @@ import Html.Events exposing (..)
 import Color exposing (..)
 import Json.Decode as Json
 import Signal exposing (Signal, Address)
+import Date exposing (..)
 import String
 import Window
 
@@ -14,32 +15,59 @@ import Window
 ---- MODEL ----
 
 type alias Model =
-    { weeks : List Week
-    , lifeExpectancy : Float
-    }
+  { weeks : List Week
+  , lifeExpectancy : Float
+  , birthDate : Date
+  }
 
 type alias Week =
-    { number : Int
-    , color : Color
-    }
+  { number : Int
+  , color : Color
+  , countries : List Country
+  , activities : List Activity
+  }
 
--- newTask : String -> Int -> Task
--- newTask desc id =
---     { description = desc
---     , completed = False
---     , editing = False
---     , id = id
---     }
+type alias Country =
+  { code : String
+  , name : String
+  --, flag : TODO?
+  }
 
-emptyModel : Model
-emptyModel =
-    { weeks = List.map (\i -> Week i (weekColor i)) [0..52*50-1]
+type alias Event =
+  { label : String
+  , date : Date
+  }
+
+type alias Goal =
+  { label : String
+  , date : Date
+  --, recurring : TODO?
+  }
+
+type Activity
+  = NA
+  | Baby
+  | School
+  | Job
+  | Retirement
+
+newWeek : Int -> Color -> Week
+newWeek number color =
+  Week number color [] []
+
+dummyModel : Model
+dummyModel =
+    { weeks = List.map (\i -> newWeek i (weekColor i)) [0..52*50-1]
     , lifeExpectancy = 80
+    , birthDate = dummyBirthDate
     }
+
+dummyBirthDate = Date.fromTime (647948800*1000)
+weekPerRow = 52
 
 weekColor : Int -> Color
 weekColor number =
-  if number < 5 then
+  if number < (Date.day dummyBirthDate) // 7 then
     rgb 255 255 255
   else if number < 52*4-4*4 then
     rgb 50 100 100
@@ -52,7 +80,15 @@ weekColor number =
   else
     rgb 100 220 100
 
-weekPerRow = 52
+dateToISO : Date -> String
+dateToISO date =
+  List.foldr (++) ""
+    [ date |> Date.year |> toString
+    , "-"
+    , date |> Date.month |> toString
+    , "-"
+    , date |> Date.day |> toString
+    ]
 
 ---- UPDATE ----
 
@@ -76,7 +112,8 @@ view address model =
     div
       [ class "lifechart-wrapper"
       ]
-      [ section
+      [ section [] [ text (dateToISO model.birthDate) ]
+      , section
           [ id "lifechart" ]
           [ weekList address model.weeks
           -- , lazy3 controls address model.visibility model.tasks
@@ -155,8 +192,8 @@ model =
 
 initialModel : Model
 initialModel =
-  --Maybe.withDefault emptyModel getStorage
-  emptyModel
+  --Maybe.withDefault dummyModel getStorage
+  dummyModel
 
 
 -- actions from user input
