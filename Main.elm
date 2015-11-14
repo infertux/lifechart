@@ -22,9 +22,8 @@ type alias Model =
 
 type alias Week =
   { number : Int
-  , color : Color
-  , countries : List Country
   , activities : List Activity
+  , countries : List Country
   }
 
 type alias Country =
@@ -44,20 +43,32 @@ type alias Goal =
   --, recurring : TODO?
   }
 
-type Activity
-  = NA
-  | Baby
-  | School
-  | Job
-  | Retirement
+type alias Activity =
+  { label : String
+  , color : Color
+  }
 
-newWeek : Int -> Color -> Week
-newWeek number color =
-  Week number color [] []
+dummyActivities =
+  [ Activity "Baby"         (rgb  50 100 100)
+  , Activity "Lower School" (rgb  50 100 150)
+  , Activity "Upper School" (rgb 100 100 200)
+  , Activity "Job"          (rgb 100 200 200)
+  , Activity "Retirement"   (rgb 100 220 100)
+  , Activity "N/A"          (rgb 255 255 255)
+  ]
+
+dummyCountries =
+  [ Country "FR" "France"
+  , Country "DE" "Germany"
+  ]
+
+newWeek : Int -> Week
+newWeek number =
+  Week number (List.take 2 dummyActivities) dummyCountries
 
 dummyModel : Model
 dummyModel =
-    { weeks = List.map (\i -> newWeek i (weekColor i)) [0..52*50-1]
+    { weeks = List.map (\i -> newWeek i) [0..52*50-1]
     , lifeExpectancy = 80
     , birthDate = dummyBirthDate
     }
@@ -65,20 +76,22 @@ dummyModel =
 dummyBirthDate = Date.fromTime (647948800*1000)
 weekPerRow = 52
 
-weekColor : Int -> Color
-weekColor number =
-  if number < (Date.day dummyBirthDate) // 7 then
-    rgb 255 255 255
-  else if number < 52*4-4*4 then
-    rgb 50 100 100
-  else if number < 52*18-4*4 then
-    rgb 50 100 150
-  else if number < 52*24-4*9 then
-    rgb 100 100 200
-  else if number < 52*26-6 then
-    rgb 100 200 200
-  else
-    rgb 100 220 100
+weekColor : Week -> Color
+weekColor week =
+  List.head (List.map .color week.activities) -- do a OR of colors instead of taking head?
+  |> Maybe.withDefault (rgb 255 255 255)
+  -- if number < (Date.day dummyBirthDate) // 7 then -- FIXME
+  --   rgb 255 255 255
+  -- else if number < 52*4-4*4 then
+  --   rgb 50 100 100
+  -- else if number < 52*18-4*4 then
+  --   rgb 50 100 150
+  -- else if number < 52*24-4*9 then
+  --   rgb 100 100 200
+  -- else if number < 52*26-6 then
+  --   rgb 100 200 200
+  -- else
+  --   rgb 100 220 100
 
 dateToISO : Date -> String
 dateToISO date =
@@ -121,27 +134,23 @@ view address model =
       , infoFooter
       ]
 
--- onEnter : Address a -> a -> Attribute
--- onEnter address value =
---     on "keydown"
---       (Json.customDecoder keyCode is13)
---       (\_ -> Signal.message address value)
-
--- is13 : Int -> Result String ()
--- is13 code =
---   if code == 13 then Ok () else Err "not the right key code"
-
+weekDivSize = if weekPerRow >= 52 then 20 else 200
 weekDiv : Week -> Html
 weekDiv week =
   div
   [ class "week", style [
     ("display", "inline-block")
-  , ("width", "20px")
-  , ("height", "20px")
+  , ("width", toString weekDivSize ++ "px")
+  , ("height", toString weekDivSize ++ "px")
   , ("border", "1px solid #555")
-  , ("background-color", (colorToCss week.color)) ] ]
-  [ text "." ]
-  -- [ text (toString (week.number%weekPerRow)) ]
+  , ("overflow", "hidden")
+  , ("font-size", "6px")
+  , ("background-color", (colorToCss (weekColor week))) ] ]
+  (List.map countryDiv week.countries)
+
+countryDiv : Country -> Html
+countryDiv country =
+  div [ style [ ("float", "right") ] ] [ text country.code ]
 
 weekList : Address Action -> List Week -> Html
 weekList address weeks =
@@ -149,7 +158,7 @@ weekList address weeks =
     if week.number % weekPerRow == 0 then
       [ div [] []
       , div
-        [ style [ ("display", "inline-block"), ("width", "20px") ] ]
+        [ style [ ("display", "inline-block"), ("width", toString weekDivSize ++ "px") ] ]
         [ text (toString (floor (toFloat week.number/52) + 1)) ]
       , weekDiv week
       ]
