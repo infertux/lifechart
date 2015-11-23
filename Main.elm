@@ -9,7 +9,6 @@ import Json.Decode as Json
 import Signal exposing (Signal, Address)
 import Date exposing (..)
 import String
-import Window
 
 
 ---- MODEL ----
@@ -19,6 +18,7 @@ type alias Model =
   , squares : List Square
   , lifeExpectancy : Float
   , birthDate : Date
+  , hideUnproductiveYears : Bool -- https://www.reddit.com/r/GetMotivated/comments/1vyf9r/made_for_myself_thought_of_you_weeks_left/cexas8u
   }
 
 type alias Square =
@@ -49,10 +49,26 @@ type alias Activity =
   , color : Color
   }
 
+type alias Item =
+  { kind : ItemKind
+  , from : Date
+  , to : Date
+  }
+
+type ItemKind
+  = ActivityKind
+  | CountryKind
+  | EventKind
+  | GoalKind
+
 type ZoomLevel -- size of 1 square
   = Day
   | Week
   | Month
+
+-- dummyItems =
+--   [ Item (Activity "Job" (rgb 100 200 200)) (Date.fromTime 0) (Date.fromTime 10000)
+--   ]
 
 dummyActivities =
   [ Activity "Baby"         (rgb  50 100 100)
@@ -75,14 +91,14 @@ newSquare number =
 dummyModel : Model
 dummyModel =
     { zoomLevel = Month
-    , squares = List.map (\i -> newSquare i) [0..52*50-1]
+    , squares = List.map (\i -> newSquare i) [0..12*50-1]
     , lifeExpectancy = 80
     , birthDate = dummyBirthDate
+    , hideUnproductiveYears = True
     }
 
 dummyBirthDate = Date.fromTime (647948800*1000)
-squarePerRow = 12 -- what about using Months as base unit?
--- merge squares when attributes are identical?
+squarePerRow = 12 -- merge squares when attributes are identical?
 
 squareColor : Square -> Color
 squareColor square =
@@ -100,6 +116,11 @@ squareColor square =
   --   rgb 100 200 200
   -- else
   --   rgb 100 220 100
+
+squareYear : Square -> Int
+squareYear square =
+  --(square.startDate - model.birthDate) / model.zoomLevel -- TODO
+  square.number // 12
 
 dateToISO : Date -> String
 dateToISO date =
@@ -167,7 +188,7 @@ squareList address squares =
       [ div [] []
       , div
         [ style [ ("display", "inline-block"), ("width", toString squareDivSize ++ "px") ] ]
-        [ text (toString (floor (toFloat square.number/52) + 1)) ]
+        [ text (toString (squareYear square)) ]
       , squareDiv square
       ]
     else
