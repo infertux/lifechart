@@ -144,7 +144,7 @@ update action model =
       NoOp -> model
 
       UpdateLifeExpectancy years ->
-          { model | lifeExpectancy <- years }
+          { model | lifeExpectancy = years }
 
 
 ---- VIEW ----
