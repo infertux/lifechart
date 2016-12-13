@@ -8,6 +8,7 @@ cache:
 
 before_script:
   - npm install -g elm
+  - npm install -g uglify-js
   - elm --version
   - elm-package install --yes
 
