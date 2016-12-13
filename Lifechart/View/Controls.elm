@@ -85,7 +85,10 @@ form model =
             [ input
                 [ class "form-control form-control-lg"
                 , type_ "date"
-                , value <| DateExtra.toISOString model.dateOfBirth
+                , required True
+                , placeholder "YYYY-MM-DD"
+                , pattern "[1-2]\\d{3}-[0-1]\\d-[0-3]\\d"
+                , value model.dateOfBirthString
                 , onInput NewDateOfBirth
                 ]
                 []
@@ -97,6 +100,7 @@ form model =
             [ input
                 [ class "form-control form-control-lg"
                 , type_ "number"
+                , required True
                 , value <| toString model.lifeExpectancy
                 , onInput NewLifeExpectancy
                 ]
@@ -123,6 +127,7 @@ newEvent model =
                         , input
                             [ class "form-control"
                             , type_ "date"
+                            , required True
                             , onInput (UpdateNewEvent EventFrom)
                             ]
                             []
@@ -134,6 +139,7 @@ newEvent model =
                         , input
                             [ class "form-control"
                             , type_ "date"
+                            , required True
                             , onInput (UpdateNewEvent EventTo)
                             ]
                             []
@@ -147,6 +153,7 @@ newEvent model =
                         , input
                             [ class "form-control"
                             , type_ "text"
+                            , required True
                             , onInput (UpdateNewEvent EventLabel)
                             ]
                             []
@@ -158,6 +165,7 @@ newEvent model =
                         , input
                             [ class "form-control"
                             , type_ "color"
+                            , required True
                             , style [ ( "height", "2.5rem" ) ]
                             , onInput (UpdateNewEvent EventColor)
                             ]

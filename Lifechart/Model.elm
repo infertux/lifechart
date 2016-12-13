@@ -9,6 +9,7 @@ import DateExtra
 
 type alias Model =
     { dateOfBirth : Date
+    , dateOfBirthString : String
     , kidUntil : Int
     , oldFrom : Int
     , lifeExpectancy : Int
@@ -39,7 +40,8 @@ type alias Event =
 
 initialModel : Model
 initialModel =
-    { dateOfBirth = DateExtra.unsafeFromString "1988-07-14"
+    { dateOfBirth = DateExtra.unsafeFromString "1988-07-24"
+    , dateOfBirthString = "1988-07-24"
     , kidUntil = 18
     , oldFrom = 70
     , lifeExpectancy = 80
@@ -55,6 +57,7 @@ mergeJsonModel : JsonModel -> Model
 mergeJsonModel jsonModel =
     { initialModel
         | dateOfBirth = jsonModel.dateOfBirth
+        , dateOfBirthString = DateExtra.toISOString jsonModel.dateOfBirth
         , kidUntil = jsonModel.kidUntil
         , oldFrom = jsonModel.oldFrom
         , lifeExpectancy = jsonModel.lifeExpectancy

@@ -1,6 +1,7 @@
 module Lifechart.Update exposing (init, update)
 
 import Navigation
+import Date
 import DateExtra
 import Color.Convert
 import Lifechart.Model exposing (..)
@@ -37,14 +38,16 @@ update msg model =
                 ( newModel, Cmd.none )
 
         NewDateOfBirth string ->
-            let
-                date =
-                    DateExtra.fromStringWithFallback string model.dateOfBirth
+            case Date.fromString string of
+                Ok date ->
+                    let
+                        newModel =
+                            { model | dateOfBirthString = string, dateOfBirth = date }
+                    in
+                        ( newModel, updateUrl newModel )
 
-                newModel =
-                    { model | dateOfBirth = date }
-            in
-                ( newModel, updateUrl newModel )
+                Err _ ->
+                    ( { model | dateOfBirthString = string }, Cmd.none )
 
         NewLifeExpectancy string ->
             let

@@ -2,7 +2,7 @@
 
 Spend your time wisely.
 
-https://infertux.com/labs/lifechart/index.html
+https://infertux.com/labs/lifechart/
 
 ## Elm
 
