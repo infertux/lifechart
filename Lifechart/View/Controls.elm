@@ -7,7 +7,7 @@ import DateExtra
 import Color.Convert
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, onClick)
+import Html.Events exposing (onInput, onClick, onSubmit)
 import Lifechart.Model exposing (..)
 import Lifechart.Serializer as Serializer
 
@@ -56,7 +56,7 @@ controls model =
             [ [ h1 [ class "text-xs-center mb-1" ] [ text "Spend your time wisely." ] ]
             , [ div [ class "text-xs-center text-muted mb-1" ] [ text "This will either inspire you or terrify you - hopefully the former." ] ]
             , links model
-            , form model
+            , config model
             , metrics model
             , events model
             , footer
@@ -77,20 +77,18 @@ links model =
         ]
 
 
-form : Model -> List (Html Msg)
-form model =
+config : Model -> List (Html Msg)
+config model =
     [ div [ class "row form-group" ]
         [ label [ class "col-xs-4 col-form-label col-form-label-lg" ] [ text "Date of Birth" ]
         , div [ class "col-xs-8" ]
             [ input
-                [ class "form-control form-control-lg"
-                , type_ "date"
-                , required True
-                , placeholder "YYYY-MM-DD"
-                , pattern "[1-2]\\d{3}-[0-1]\\d-[0-3]\\d"
-                , value model.dateOfBirthString
-                , onInput NewDateOfBirth
-                ]
+                (List.append dateInputAttributes
+                    [ class "form-control form-control-lg"
+                    , value model.dateOfBirthString
+                    , onInput NewDateOfBirth
+                    ]
+                )
                 []
             ]
         ]
@@ -119,17 +117,17 @@ newEvent model =
             else
                 " hidden-xs-up"
 
-        form =
+        inputs =
             [ div [ class "row form-group" ]
                 [ div [ class "col-xs-6" ]
                     [ div [ class "input-group" ]
                         [ span [ class "input-group-addon" ] [ text "From" ]
                         , input
-                            [ class "form-control"
-                            , type_ "date"
-                            , required True
-                            , onInput (UpdateNewEvent EventFrom)
-                            ]
+                            (List.append dateInputAttributes
+                                [ class "form-control"
+                                , onInput (UpdateNewEvent EventFrom)
+                                ]
+                            )
                             []
                         ]
                     ]
@@ -137,11 +135,11 @@ newEvent model =
                     [ div [ class "input-group" ]
                         [ span [ class "input-group-addon" ] [ text "To" ]
                         , input
-                            [ class "form-control"
-                            , type_ "date"
-                            , required True
-                            , onInput (UpdateNewEvent EventTo)
-                            ]
+                            (List.append dateInputAttributes
+                                [ class "form-control"
+                                , onInput (UpdateNewEvent EventTo)
+                                ]
+                            )
                             []
                         ]
                     ]
@@ -177,7 +175,6 @@ newEvent model =
                         [ class "btn btn-primary"
                         , type_ "submit"
                         , value "Add"
-                        , onClick SaveNewEvent
                         ]
                         []
                     ]
@@ -195,7 +192,9 @@ newEvent model =
                     [ text "Add event" ]
                 ]
             ]
-        , li [ class <| "list-group-item" ++ visibility ] form
+        , li [ class <| "list-group-item" ++ visibility ]
+            [ Html.form [ onSubmit SaveNewEvent ] inputs
+            ]
         ]
 
 
@@ -300,6 +299,15 @@ footer =
                 ]
             ]
         ]
+    ]
+
+
+dateInputAttributes : List (Attribute Msg)
+dateInputAttributes =
+    [ type_ "date"
+    , required True
+    , placeholder "YYYY-MM-DD"
+    , pattern "[1-2]\\d{3}-[0-1]\\d-[0-3]\\d"
     ]
 
 
