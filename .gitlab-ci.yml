@@ -1,0 +1,16 @@
+# Official language image. Look for the different tagged releases at:
+# https://hub.docker.com/r/library/node/tags/
+image: node:latest
+
+cache:
+  paths:
+    - elm-stuff
+
+before_script:
+  - npm install -g elm
+  - elm --version
+  - elm-package install --yes
+
+build:
+  script:
+  - ./build.sh
