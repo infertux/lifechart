@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lifechart</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+</head>
+
+<body class="m-1">
+  <div class="container">
+    <div id="elm-lifechart-app"></div>
+  </div>
+
+  <script src="lifechart.js"></script>
+  <script>
+    const elmLifechartDiv = document.querySelector("#elm-lifechart-app");
+    const elmLifechartApp = Elm.Lifechart.embed(elmLifechartDiv);
+  </script>
+</body>
+</html>
