@@ -40,7 +40,7 @@ serializeJson : Model -> String
 serializeJson model =
     Encode.encode 2 <|
         Encode.object
-            [ ( "date-of-birth", encodeDate model.dateOfBirth )
+            [ ( "birth-date", encodeDate model.birthDate )
             , ( "life-expectancy", Encode.int model.lifeExpectancy )
             , ( "kid-until", Encode.int model.kidUntil )
             , ( "old-from", Encode.int model.oldFrom )
@@ -51,7 +51,7 @@ serializeJson model =
 jsonDecoder : Decode.Decoder JsonModel
 jsonDecoder =
     Decode.map5 JsonModel
-        (Decode.field "date-of-birth" dateDecoder)
+        (Decode.field "birth-date" dateDecoder)
         (Decode.field "kid-until" Decode.int)
         (Decode.field "old-from" Decode.int)
         (Decode.field "life-expectancy" Decode.int)

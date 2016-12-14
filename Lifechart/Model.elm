@@ -8,8 +8,8 @@ import DateExtra
 
 
 type alias Model =
-    { dateOfBirth : Date
-    , dateOfBirthString : String
+    { birthDate : Date
+    , birthDateString : String
     , kidUntil : Int
     , oldFrom : Int
     , lifeExpectancy : Int
@@ -22,7 +22,7 @@ type alias Model =
 
 
 type alias JsonModel =
-    { dateOfBirth : Date
+    { birthDate : Date
     , kidUntil : Int
     , oldFrom : Int
     , lifeExpectancy : Int
@@ -40,8 +40,8 @@ type alias Event =
 
 initialModel : Model
 initialModel =
-    { dateOfBirth = DateExtra.unsafeFromString "1988-07-24"
-    , dateOfBirthString = "1988-07-24"
+    { birthDate = DateExtra.unsafeFromString "1988-07-24"
+    , birthDateString = "1988-07-24"
     , kidUntil = 18
     , oldFrom = 70
     , lifeExpectancy = 80
@@ -56,8 +56,8 @@ initialModel =
 mergeJsonModel : JsonModel -> Model
 mergeJsonModel jsonModel =
     { initialModel
-        | dateOfBirth = jsonModel.dateOfBirth
-        , dateOfBirthString = DateExtra.toISOString jsonModel.dateOfBirth
+        | birthDate = jsonModel.birthDate
+        , birthDateString = DateExtra.toISOString jsonModel.birthDate
         , kidUntil = jsonModel.kidUntil
         , oldFrom = jsonModel.oldFrom
         , lifeExpectancy = jsonModel.lifeExpectancy
@@ -110,7 +110,7 @@ type Msg
 
 deathDate : Model -> Date
 deathDate model =
-    partialDate model (Date.year model.dateOfBirth + model.lifeExpectancy)
+    partialDate model (Date.year model.birthDate + model.lifeExpectancy)
 
 
 partialDate : Model -> Int -> Date
@@ -118,6 +118,6 @@ partialDate model year =
     DateExtra.unsafeFromString <|
         String.join "-"
             [ toString year
-            , toString <| DateExtra.monthToInt <| Date.month model.dateOfBirth
-            , toString <| Date.day model.dateOfBirth
+            , toString <| DateExtra.monthToInt <| Date.month model.birthDate
+            , toString <| Date.day model.birthDate
             ]

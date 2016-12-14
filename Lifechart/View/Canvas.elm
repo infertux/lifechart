@@ -166,7 +166,7 @@ year : Model -> Int -> List Form
 year model index =
     let
         year =
-            Date.year model.dateOfBirth + index
+            Date.year model.birthDate + index
 
         paddedIndex =
             String.padLeft 2 '0' (toString index)
@@ -223,7 +223,7 @@ week model year week =
 
 outOfBounds : Model -> Time -> Bool
 outOfBounds model time =
-    time < Date.toTime model.dateOfBirth || time > Date.toTime (deathDate model)
+    time < Date.toTime model.birthDate || time > Date.toTime (deathDate model)
 
 
 isCurrentWeek : Model -> Time -> Bool
@@ -244,7 +244,7 @@ isKid : Model -> Time -> Bool
 isKid model time =
     let
         kidDate =
-            partialDate model (Date.year model.dateOfBirth + model.kidUntil)
+            partialDate model (Date.year model.birthDate + model.kidUntil)
     in
         Date.toTime kidDate >= time
 
@@ -253,7 +253,7 @@ isOld : Model -> Time -> Bool
 isOld model time =
     let
         oldDate =
-            partialDate model (Date.year model.dateOfBirth + model.oldFrom)
+            partialDate model (Date.year model.birthDate + model.oldFrom)
     in
         Date.toTime oldDate <= time
 
@@ -262,7 +262,7 @@ yearWeekToTime : Model -> ( Int, Int ) -> Time
 yearWeekToTime model ( year, week ) =
     let
         currentYear =
-            Date.year model.dateOfBirth + year
+            Date.year model.birthDate + year
 
         beginningOfYear =
             DateExtra.unsafeFromString <| toString currentYear ++ "-01-01"

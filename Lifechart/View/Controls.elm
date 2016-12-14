@@ -66,12 +66,15 @@ controls model =
 links : Model -> List (Html Msg)
 links model =
     let
+        demo =
+            "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIKICAgIH0sCiAgICB7CiAgICAgICJmcm9tIjogIjIwMTUtMDYtMDEiLAogICAgICAidG8iOiAiMjAxNi0wNS0zMSIsCiAgICAgICJjb2xvciI6ICIjNzNkMjE2IiwKICAgICAgImxhYmVsIjogInRyaXAiCiAgICB9CiAgXQp9Cg=="
+
         base64 =
             Serializer.serialize model
     in
         [ nav [ class "nav nav-inline text-xs-center mb-1" ]
             [ a [ class "nav-link", href "#" ] [ text "blank chart" ]
-            , a [ class "nav-link", href "#ewogICJkYXRlLW9mLWJpcnRoIjogIjE5ODgtMDctMTQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSAoZXhhbXBsZSkiCiAgICB9LAogICAgewogICAgICAiZnJvbSI6ICIyMDE1LTA2LTAxIiwKICAgICAgInRvIjogIjIwMTYtMDUtMzEiLAogICAgICAiY29sb3IiOiAiIzczZDIxNiIsCiAgICAgICJsYWJlbCI6ICJ0cmlwIChleGFtcGxlKSIKICAgIH0KICBdCn0=" ] [ text "demo chart" ]
+            , a [ class "nav-link", href <| "#" ++ demo ] [ text "demo chart" ]
             , a [ class "nav-link", href <| "#" ++ base64 ] [ text "bookmark your own chart" ]
             ]
         ]
@@ -85,7 +88,7 @@ config model =
             [ input
                 (List.append dateInputAttributes
                     [ class "form-control form-control-lg"
-                    , value model.dateOfBirthString
+                    , value model.birthDateString
                     , onInput NewDateOfBirth
                     ]
                 )
@@ -246,8 +249,8 @@ metrics model =
 
         percentage =
             100
-                * (model.now - Date.toTime model.dateOfBirth)
-                / (Date.toTime (deathDate model) - Date.toTime model.dateOfBirth)
+                * (model.now - Date.toTime model.birthDate)
+                / (Date.toTime (deathDate model) - Date.toTime model.birthDate)
                 |> clamp 0 100
                 |> roundToPadded 6
     in

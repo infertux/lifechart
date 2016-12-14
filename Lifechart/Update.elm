@@ -42,12 +42,12 @@ update msg model =
                 Ok date ->
                     let
                         newModel =
-                            { model | dateOfBirthString = string, dateOfBirth = date }
+                            { model | birthDateString = string, birthDate = date }
                     in
                         ( newModel, updateUrl newModel )
 
                 Err _ ->
-                    ( { model | dateOfBirthString = string }, Cmd.none )
+                    ( { model | birthDateString = string }, Cmd.none )
 
         NewLifeExpectancy string ->
             let
