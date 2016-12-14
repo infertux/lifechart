@@ -3,6 +3,8 @@ module Lifechart.Update exposing (init, update)
 import Navigation
 import Date
 import DateExtra
+import Time
+import Task
 import Color.Convert
 import Lifechart.Model exposing (..)
 import Lifechart.Serializer as Serializer
@@ -16,7 +18,7 @@ init location =
                 |> Result.toMaybe
                 |> Maybe.withDefault initialModel
     in
-        ( model, Cmd.none )
+        ( model, Task.perform Tick Time.now )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

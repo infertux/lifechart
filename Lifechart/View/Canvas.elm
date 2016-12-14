@@ -70,9 +70,11 @@ canvas model =
         theLegend =
             legend model
                 |> Collage.moveX (canvasWidth / 2 - legendWidth + lineHeight)
+
+        form =
+            Collage.group [ grid, theLegend ]
     in
-        Collage.collage canvasWidth (ceiling height) [ grid, theLegend ]
-            |> Element.toHtml
+        Collage.collage canvasWidth (ceiling height) [ form ] |> Element.toHtml
 
 
 legend : Model -> Form
