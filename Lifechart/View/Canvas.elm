@@ -5,6 +5,7 @@ import Collage exposing (Form, LineStyle)
 import Element exposing (Element)
 import Text exposing (Text)
 import Color exposing (Color)
+import Color.Interpolate
 import Date exposing (Date)
 import Time exposing (Time)
 import DateExtra
@@ -196,31 +197,54 @@ week model year week =
             (Date.toTime event.from <= time)
                 && (Date.toTime event.to >= time)
 
-        event =
-            List.filter match model.events |> List.reverse |> List.head
+        events =
+            List.filter match model.events
 
-        -- TODO: mix colors when multiple events
-        -- http://package.elm-lang.org/packages/eskimoblood/elm-color-extra/3.2.3/Color-Interpolate
+        colors =
+            List.map .color events
+
+        weekColor =
+            List.head colors |> Maybe.andThen mixColors
+
+        mixColors firstColor =
+            Just <|
+                List.foldl
+                    (\oldColor ->
+                        \newColor ->
+                            Color.Interpolate.interpolate
+                                Color.Interpolate.HSL
+                                oldColor
+                                newColor
+                                0.5
+                    )
+                    firstColor
+                    (List.drop 1 colors)
+
+        filled color =
+            Collage.square weekWidth |> Collage.filled color
+
+        outlined =
+            Collage.square (weekWidth - weekBorder) |> Collage.outlined lineStyle
     in
         if isCurrentWeek model time then
             if isEvenSecond model then
-                Collage.square weekWidth |> Collage.filled Color.black
+                filled Color.black
             else
-                Collage.square (weekWidth - weekBorder) |> Collage.outlined lineStyle
+                outlined
         else
-            case event of
+            case weekColor of
                 Nothing ->
                     if outOfBounds model time then
-                        Collage.square weekWidth |> Collage.filled Color.lightGrey
+                        filled Color.lightGrey
                     else if isKid model time || isOld model time then
-                        Collage.square weekWidth |> Collage.filled Color.grey
+                        filled Color.grey
                     else if isPast model time then
-                        Collage.square weekWidth |> Collage.filled Color.black
+                        filled Color.black
                     else
-                        Collage.square (weekWidth - weekBorder) |> Collage.outlined lineStyle
+                        outlined
 
-                Just event ->
-                    Collage.square weekWidth |> Collage.filled event.color
+                Just color ->
+                    filled color
 
 
 outOfBounds : Model -> Time -> Bool
