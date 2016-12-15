@@ -13,16 +13,22 @@ roundTo precision float =
 roundToPadded : Int -> Float -> String
 roundToPadded precision float =
     let
+        rounded =
+            roundTo precision float
+
         intLength =
-            1 + logBase 10 float |> truncate
+            truncate (logBase 10 rounded) + 1
+
+        baseString =
+            toString rounded
 
         string =
-            roundTo precision float |> toString
+            if String.contains "." baseString then
+                baseString
+            else
+                baseString ++ "."
 
         totalLength =
-            if toFloat (truncate float) == float then
-                intLength
-            else
-                intLength + 1 + precision
+            intLength + 1 + precision
     in
         string |> String.padRight totalLength '0'
