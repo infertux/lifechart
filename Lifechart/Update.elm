@@ -94,7 +94,8 @@ update msg model =
         SaveNewEvent ->
             let
                 events =
-                    List.append model.events [ model.newEvent ]
+                    (model.newEvent :: model.events)
+                        |> List.sortBy (\event -> DateExtra.toISOString event.from)
 
                 newModel =
                     { model | events = events, newEventOpen = False }
