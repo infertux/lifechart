@@ -19,4 +19,4 @@ main =
 
 subscriptions : Model.Model -> Sub Model.Msg
 subscriptions model =
-    Time.every (Time.second * 5) Model.Tick
+    Time.every (Time.second * 10) Model.Tick

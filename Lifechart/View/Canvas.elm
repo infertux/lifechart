@@ -227,10 +227,7 @@ week model year week =
             Collage.square (weekWidth - weekBorder) |> Collage.outlined lineStyle
     in
         if isCurrentWeek model time then
-            if isEvenSecond model then
-                filled Color.black
-            else
-                outlined
+            filled Color.black |> Collage.alpha 0.5
         else
             case weekColor of
                 Nothing ->
@@ -332,8 +329,3 @@ lineStyle =
             Collage.defaultLine
     in
         { default | width = weekBorder }
-
-
-isEvenSecond : Model -> Bool
-isEvenSecond model =
-    truncate (model.now / Time.second) % 2 == 0
