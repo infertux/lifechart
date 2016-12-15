@@ -207,23 +207,36 @@ events model =
         makeEvent event =
             li [ class "list-group-item" ]
                 [ div
-                    [ class "float-xs-left"
-                    , style
-                        [ ( "width", "1rem" )
-                        , ( "height", "1rem" )
-                        , ( "margin", "3px 0.5rem 0 0" )
-                        , ( "background-color", Color.Convert.colorToHex event.color )
+                    [ class "row" ]
+                    [ div [ class "col-xs-5" ]
+                        [ div
+                            [ class "float-xs-left"
+                            , style
+                                [ ( "width", "1rem" )
+                                , ( "height", "1rem" )
+                                , ( "margin", "3px 0.5rem 0 0" )
+                                , ( "background-color", Color.Convert.colorToHex event.color )
+                                ]
+                            ]
+                            []
+                        , span [] [ text event.label ]
                         ]
-                    ]
-                    []
-                , span [] [ text event.label ]
-                , span [ class "float-xs-right text-muted" ]
-                    [ text <|
-                        DateExtra.toISOString event.from
-                            ++ " to "
-                            ++ DateExtra.toISOString event.to
+                    , div [ class "col-xs-5 text-muted" ]
+                        [ text <|
+                            DateExtra.toISOString event.from
+                                ++ " to "
+                                ++ DateExtra.toISOString event.to
+                        ]
+                    , div [ class "col-xs-2 text-xs-right text-muted" ]
+                        [ text <| eventPercentage event model ++ "%" ]
                     ]
                 ]
+
+        eventPercentage event model =
+            100
+                * (Date.toTime event.to - Date.toTime event.from)
+                / (Date.toTime (deathDate model) - Date.toTime model.birthDate)
+                |> roundToPadded 1
 
         list =
             if List.isEmpty model.events then
