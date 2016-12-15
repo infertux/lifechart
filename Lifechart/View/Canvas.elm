@@ -233,8 +233,11 @@ isCurrentWeek model time =
     let
         now =
             model.now
+
+        halfWeek =
+            oneWeek / 2
     in
-        now <= time && time < now + oneWeek
+        now - halfWeek <= time && time < now + halfWeek
 
 
 isPast : Model -> Time -> Bool
@@ -293,7 +296,7 @@ yearWeekToTime model ( year, week ) =
                     6
 
         yearOffset =
-            toFloat (week - 1) * oneWeek + toFloat (firstMondayOffset + 1) * oneDay
+            toFloat (week - 1) * oneWeek + toFloat firstMondayOffset * oneDay
     in
         Date.toTime beginningOfYear + yearOffset
 

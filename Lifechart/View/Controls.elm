@@ -69,13 +69,13 @@ links model =
         demo =
             "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIKICAgIH0sCiAgICB7CiAgICAgICJmcm9tIjogIjIwMTUtMDYtMDEiLAogICAgICAidG8iOiAiMjAxNi0wNS0zMSIsCiAgICAgICJjb2xvciI6ICIjNzNkMjE2IiwKICAgICAgImxhYmVsIjogInRyaXAiCiAgICB9CiAgXQp9Cg=="
 
-        base64 =
+        current =
             Serializer.serialize model
     in
         [ nav [ class "nav nav-inline text-xs-center mb-1" ]
             [ a [ class "nav-link", href "#" ] [ text "blank chart" ]
             , a [ class "nav-link", href <| "#" ++ demo ] [ text "demo chart" ]
-            , a [ class "nav-link", href <| "#" ++ base64 ] [ text "bookmark your own chart" ]
+            , a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ]
             ]
         ]
 
