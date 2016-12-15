@@ -44,17 +44,19 @@ serializeJson model =
             , ( "life-expectancy", Encode.int model.lifeExpectancy )
             , ( "kid-until", Encode.int model.kidUntil )
             , ( "old-from", Encode.int model.oldFrom )
+            , ( "hide-unproductive-years", Encode.bool model.hideUnproductiveYears )
             , ( "events", Encode.list <| List.map encodeEvent model.events )
             ]
 
 
 jsonDecoder : Decode.Decoder JsonModel
 jsonDecoder =
-    Decode.map5 JsonModel
+    Decode.map6 JsonModel
         (Decode.field "birth-date" dateDecoder)
         (Decode.field "kid-until" Decode.int)
         (Decode.field "old-from" Decode.int)
         (Decode.field "life-expectancy" Decode.int)
+        (Decode.field "hide-unproductive-years" Decode.bool)
         (Decode.field "events" <| Decode.list eventDecoder)
 
 

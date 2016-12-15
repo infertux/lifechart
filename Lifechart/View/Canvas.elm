@@ -9,7 +9,7 @@ import Color.Interpolate
 import Date exposing (Date)
 import Time exposing (Time)
 import DateExtra
-import Lifechart.Model exposing (..)
+import Lifechart.Model as Model exposing (..)
 
 
 lineHeight : number
@@ -73,7 +73,10 @@ canvas model =
                 |> Collage.moveX (canvasWidth / 2 - legendWidth + lineHeight)
 
         form =
-            Collage.group [ grid, theLegend ]
+            if model.hideUnproductiveYears then
+                Collage.group [ grid ]
+            else
+                Collage.group [ grid, theLegend ]
     in
         Collage.collage canvasWidth (ceiling height) [ form ] |> Element.toHtml
 
@@ -96,7 +99,7 @@ legend model =
             )
 
         maxKidUntil =
-            Basics.min lifeExpectancy kidUntil
+            Model.maxKidUntil model |> toFloat
 
         kid =
             makeText "kid"
@@ -111,7 +114,7 @@ legend model =
                     (canvasHeight (lifeExpectancy / 2 - kidUntil) - markOffset)
 
         maxOldFrom =
-            Basics.min lifeExpectancy oldFrom
+            Model.maxOldFrom model |> toFloat
 
         productive =
             if maxOldFrom - kidUntil < 8 then
@@ -145,9 +148,15 @@ years model =
         makeYear i =
             Collage.group (year model i)
                 |> Collage.moveY
-                    ((toFloat -i - 1) * (weekWidth + weekBorder * 2) - lineHeight)
+                    ((0 - toFloat (i - from + 1)) * (weekWidth + weekBorder * 2) - lineHeight)
+
+        ( from, to ) =
+            if model.hideUnproductiveYears then
+                ( model.kidUntil, maxOldFrom model )
+            else
+                ( 0, model.lifeExpectancy )
     in
-        weekIndexes :: (List.range 0 model.lifeExpectancy |> List.map makeYear)
+        weekIndexes :: (List.range from to |> List.map makeYear)
 
 
 weekIndexes : Form
@@ -246,7 +255,8 @@ week model year week =
 
 outOfBounds : Model -> Time -> Bool
 outOfBounds model time =
-    time < Date.toTime model.birthDate || time > Date.toTime (deathDate model)
+    (time < Date.toTime (relativeBirthDate model))
+        || (time > Date.toTime (relativeDeathDate model))
 
 
 isCurrentWeek : Model -> Time -> Bool
@@ -270,18 +280,24 @@ isKid : Model -> Time -> Bool
 isKid model time =
     let
         kidDate =
-            partialDate model (Date.year model.birthDate + model.kidUntil)
+            partialDate model (Date.year (relativeBirthDate model) + model.kidUntil)
     in
-        Date.toTime kidDate >= time
+        if model.hideUnproductiveYears then
+            False
+        else
+            Date.toTime kidDate >= time
 
 
 isOld : Model -> Time -> Bool
 isOld model time =
     let
         oldDate =
-            partialDate model (Date.year model.birthDate + model.oldFrom)
+            partialDate model (Date.year (relativeBirthDate model) + model.oldFrom)
     in
-        Date.toTime oldDate <= time
+        if model.hideUnproductiveYears then
+            False
+        else
+            Date.toTime oldDate <= time
 
 
 yearWeekToTime : Model -> ( Int, Int ) -> Time

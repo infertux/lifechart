@@ -44,7 +44,10 @@ update msg model =
                 Ok date ->
                     let
                         newModel =
-                            { model | birthDateString = string, birthDate = date }
+                            { model
+                                | birthDateString = string
+                                , birthDate = date
+                            }
                     in
                         ( newModel, updateUrl newModel )
 
@@ -53,16 +56,31 @@ update msg model =
 
         NewLifeExpectancy string ->
             let
-                value =
-                    case String.toInt string of
-                        Ok int ->
-                            clamp 1 500 int
+                int =
+                    String.toInt string |> Result.toMaybe |> Maybe.withDefault 0
+            in
+                if int < minLifeExpectancy model || int > 500 then
+                    ( { model | lifeExpectancyString = string }, Cmd.none )
+                else
+                    let
+                        newModel =
+                            { model
+                                | lifeExpectancyString = string
+                                , lifeExpectancy = int
+                            }
+                    in
+                        ( newModel, updateUrl newModel )
 
-                        Err _ ->
-                            1
+        HideUnproductiveYears bool ->
+            let
+                tempModel =
+                    { model | hideUnproductiveYears = bool }
 
                 newModel =
-                    { model | lifeExpectancy = value }
+                    { tempModel
+                        | lifeExpectancy =
+                            Basics.max tempModel.lifeExpectancy (minLifeExpectancy tempModel)
+                    }
             in
                 ( newModel, updateUrl newModel )
 
@@ -140,3 +158,11 @@ updateUrl model =
             "#" ++ base64
     in
         Navigation.newUrl url
+
+
+minLifeExpectancy : Model -> Int
+minLifeExpectancy model =
+    if model.hideUnproductiveYears then
+        model.kidUntil
+    else
+        1

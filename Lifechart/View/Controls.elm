@@ -67,7 +67,7 @@ links : Model -> List (Html Msg)
 links model =
     let
         demo =
-            "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIKICAgIH0sCiAgICB7CiAgICAgICJmcm9tIjogIjIwMTUtMDYtMDEiLAogICAgICAidG8iOiAiMjAxNi0wNS0zMSIsCiAgICAgICJjb2xvciI6ICIjNzNkMjE2IiwKICAgICAgImxhYmVsIjogInRyaXAiCiAgICB9CiAgXQp9Cg=="
+            "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImhpZGUtdW5wcm9kdWN0aXZlLXllYXJzIjogZmFsc2UsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIKICAgIH0sCiAgICB7CiAgICAgICJmcm9tIjogIjIwMTUtMDYtMDEiLAogICAgICAidG8iOiAiMjAxNi0wNS0zMSIsCiAgICAgICJjb2xvciI6ICIjNzNkMjE2IiwKICAgICAgImxhYmVsIjogInRyaXAiCiAgICB9CiAgXQp9Cg=="
 
         current =
             Serializer.serialize model
@@ -83,8 +83,8 @@ links model =
 config : Model -> List (Html Msg)
 config model =
     [ div [ class "row form-group" ]
-        [ label [ class "col-xs-4 col-form-label col-form-label-lg" ] [ text "Date of Birth" ]
-        , div [ class "col-xs-8" ]
+        [ label [ class "col-xs-5 col-form-label col-form-label-lg" ] [ text "Date of Birth" ]
+        , div [ class "col-xs-7" ]
             [ input
                 (List.append dateInputAttributes
                     [ class "form-control form-control-lg"
@@ -96,16 +96,59 @@ config model =
             ]
         ]
     , div [ class "row form-group" ]
-        [ label [ class "col-xs-4 col-form-label col-form-label-lg" ] [ text "Life Expectancy" ]
-        , div [ class "col-xs-8" ]
+        [ label [ class "col-xs-5 col-form-label col-form-label-lg" ]
+            [ text "Life Expectancy "
+            , a
+                [ href
+                    "https://en.wikipedia.org/wiki/List_of_countries_by_life_expectancy"
+                , target "_blank"
+                ]
+                [ text "(?)" ]
+            ]
+        , div [ class "col-xs-7" ]
             [ input
                 [ class "form-control form-control-lg"
                 , type_ "number"
                 , required True
-                , value <| toString model.lifeExpectancy
+                , value model.lifeExpectancyString
+                , Html.Attributes.min "1"
+                , Html.Attributes.max "500"
                 , onInput NewLifeExpectancy
                 ]
                 []
+            ]
+        ]
+    , div [ class "row form-group" ]
+        [ label [ class "col-xs-5 col-form-label col-form-label-lg" ]
+            [ text "Unproductive years "
+            , a
+                [ href
+                    "https://www.reddit.com/r/GetMotivated/comments/1vyf9r/made_for_myself_thought_of_you_weeks_left/cexas8u/"
+                , target "_blank"
+                ]
+                [ text "(?)" ]
+            ]
+        , div [ class "col-xs-7" ]
+            [ label [ class "form-check-inline form-control-lg" ]
+                [ input
+                    [ class "form-check-input"
+                    , type_ "radio"
+                    , checked <| not model.hideUnproductiveYears
+                    , onClick <| HideUnproductiveYears False
+                    ]
+                    []
+                , text " Show"
+                ]
+            , label [ class "form-check-inline form-control-lg" ]
+                [ input
+                    [ class "form-check-input"
+                    , type_ "radio"
+                    , checked model.hideUnproductiveYears
+                    , onClick <| HideUnproductiveYears True
+                    ]
+                    []
+                , text " Hide"
+                ]
             ]
         ]
     ]
@@ -235,7 +278,7 @@ events model =
         eventPercentage event model =
             100
                 * (Date.toTime event.to - Date.toTime event.from)
-                / (Date.toTime (deathDate model) - Date.toTime model.birthDate)
+                / (Date.toTime (relativeDeathDate model) - Date.toTime (relativeBirthDate model))
                 |> roundToPadded 1
 
         list =
@@ -262,8 +305,8 @@ metrics model =
 
         percentage =
             100
-                * (model.now - Date.toTime model.birthDate)
-                / (Date.toTime (deathDate model) - Date.toTime model.birthDate)
+                * (model.now - Date.toTime (relativeBirthDate model))
+                / (Date.toTime (relativeDeathDate model) - Date.toTime (relativeBirthDate model))
                 |> clamp 0 100
                 |> roundToPadded 6
     in
@@ -301,8 +344,6 @@ footer =
                 [ text "Inspired by "
                 , a [ href "https://i.imgur.com/67aHKhF.jpg", target "_blank" ] [ text "this chart" ]
                 , text " - "
-                , a [ href "https://www.reddit.com/r/GetMotivated/comments/1vyf9r/made_for_myself_thought_of_you_weeks_left/cexas8u/", target "_blank" ] [ text "I'm terrified" ]
-                , text " - "
                 , a [ href "https://github.com/infertux/lifechart", target "_blank" ] [ text "Source code" ]
                 , text " - "
                 , a [ href "javascript:void(0)", onClick ToggleModal ] [ text "Show raw data" ]
@@ -331,7 +372,7 @@ weeksLeft : Model -> String
 weeksLeft model =
     let
         left =
-            Date.toTime (deathDate model) - model.now
+            Date.toTime (relativeDeathDate model) - model.now
 
         weeks =
             (Time.inHours left) / 24 / 7 |> Basics.max 0

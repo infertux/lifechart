@@ -13,6 +13,8 @@ type alias Model =
     , kidUntil : Int
     , oldFrom : Int
     , lifeExpectancy : Int
+    , lifeExpectancyString : String
+    , hideUnproductiveYears : Bool
     , events : List Event
     , newEventOpen : Bool
     , newEvent : Event
@@ -26,6 +28,7 @@ type alias JsonModel =
     , kidUntil : Int
     , oldFrom : Int
     , lifeExpectancy : Int
+    , hideUnproductiveYears : Bool
     , events : List Event
     }
 
@@ -45,6 +48,8 @@ initialModel =
     , kidUntil = 18
     , oldFrom = 70
     , lifeExpectancy = 80
+    , lifeExpectancyString = "80"
+    , hideUnproductiveYears = False
     , events = []
     , newEventOpen = False
     , newEvent = initialEvent
@@ -61,6 +66,8 @@ mergeJsonModel jsonModel =
         , kidUntil = jsonModel.kidUntil
         , oldFrom = jsonModel.oldFrom
         , lifeExpectancy = jsonModel.lifeExpectancy
+        , lifeExpectancyString = toString jsonModel.lifeExpectancy
+        , hideUnproductiveYears = jsonModel.hideUnproductiveYears
         , events = jsonModel.events
     }
 
@@ -101,6 +108,7 @@ type Msg
     | NewUrl Navigation.Location
     | NewDateOfBirth String
     | NewLifeExpectancy String
+    | HideUnproductiveYears Bool
     | ToggleNewEvent
     | UpdateNewEvent NewEventField String
     | SaveNewEvent
@@ -108,9 +116,30 @@ type Msg
     | ToggleModal
 
 
-deathDate : Model -> Date
-deathDate model =
-    partialDate model (Date.year model.birthDate + model.lifeExpectancy)
+relativeBirthDate : Model -> Date
+relativeBirthDate model =
+    if model.hideUnproductiveYears then
+        partialDate model (Date.year model.birthDate + model.kidUntil)
+    else
+        model.birthDate
+
+
+relativeDeathDate : Model -> Date
+relativeDeathDate model =
+    if model.hideUnproductiveYears then
+        partialDate model (Date.year model.birthDate + maxOldFrom model)
+    else
+        partialDate model (Date.year model.birthDate + model.lifeExpectancy)
+
+
+maxKidUntil : Model -> Int
+maxKidUntil model =
+    Basics.min model.lifeExpectancy model.kidUntil
+
+
+maxOldFrom : Model -> Int
+maxOldFrom model =
+    Basics.min model.lifeExpectancy model.oldFrom
 
 
 partialDate : Model -> Int -> Date
