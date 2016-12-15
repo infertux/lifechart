@@ -152,20 +152,23 @@ update msg model =
 
                 newEvents =
                     if model.eventFormOpen == 0 then
-                        newEvent :: model.events
+                        model.events
                     else
-                        List.indexedMap
-                            (\index ->
-                                \event ->
-                                    if index + 1 == model.eventFormOpen then
-                                        newEvent
-                                    else
-                                        event
-                            )
-                            model.events
+                        deleteEvent model.eventFormOpen model.events
 
                 events =
-                    List.sortBy (\event -> DateExtra.toISOString event.from) newEvents
+                    (newEvent :: newEvents)
+                        |> List.sortBy (\event -> DateExtra.toISOString event.from)
+
+                newModel =
+                    { model | events = events, eventFormOpen = -1 }
+            in
+                ( newModel, updateUrl newModel )
+
+        DeleteEvent ->
+            let
+                events =
+                    deleteEvent model.eventFormOpen model.events
 
                 newModel =
                     { model | events = events, eventFormOpen = -1 }
@@ -218,3 +221,17 @@ minLifeExpectancy model =
         model.kidUntil
     else
         1
+
+
+deleteEvent : Int -> List Event -> List Event
+deleteEvent index events =
+    List.indexedMap
+        (\i ->
+            \event ->
+                if i + 1 == index then
+                    Nothing
+                else
+                    Just event
+        )
+        events
+        |> List.filterMap identity

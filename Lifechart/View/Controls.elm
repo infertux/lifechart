@@ -182,6 +182,31 @@ eventForm model index =
                 ""
             else
                 " hidden-xs-up"
+
+        newEvent =
+            index == 0
+
+        delete =
+            a [ href "javascript:void(0)", onClick DeleteEvent ] [ text "delete" ]
+
+        submit =
+            input
+                [ class "btn btn-primary ml-1"
+                , type_ "submit"
+                , value
+                    (if newEvent then
+                        "Add"
+                     else
+                        "Save"
+                    )
+                ]
+                []
+
+        actions =
+            if newEvent then
+                [ submit ]
+            else
+                [ delete, submit ]
     in
         li [ class <| "list-group-item" ++ visibility ]
             [ Html.form [ onSubmit SaveEvent ]
@@ -227,33 +252,18 @@ eventForm model index =
                                 []
                             ]
                         ]
-                    , div [ class "col-xs-3" ]
-                        [ div [ class "input-group" ]
-                            [ span [ class "input-group-addon" ] [ text "Color" ]
-                            , input
-                                [ class "form-control"
-                                , type_ "color"
-                                , required True
-                                , value event.color
-                                , style [ ( "height", "2.5rem" ) ]
-                                , onInput (UpdateEvent EventColor)
-                                ]
-                                []
-                            ]
-                        ]
-                    , div [ class "col-xs-3 text-xs-right" ]
+                    , div [ class "col-xs-2" ]
                         [ input
-                            [ class "btn btn-primary"
-                            , type_ "submit"
-                            , value
-                                (if index == 0 then
-                                    "Add"
-                                 else
-                                    "Save"
-                                )
+                            [ class "form-control"
+                            , type_ "color"
+                            , required True
+                            , value event.color
+                            , style [ ( "height", "2.5rem" ) ]
+                            , onInput (UpdateEvent EventColor)
                             ]
                             []
                         ]
+                    , div [ class "col-xs-4 text-xs-right" ] actions
                     ]
                 ]
             ]

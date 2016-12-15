@@ -111,6 +111,7 @@ type Msg
     | ShowEventForm Int
     | UpdateEvent NewEventField String
     | SaveEvent
+    | DeleteEvent
     | NewConfig String
     | ToggleModal
 
