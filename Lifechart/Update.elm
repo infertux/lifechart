@@ -84,39 +84,91 @@ update msg model =
             in
                 ( newModel, updateUrl newModel )
 
-        ToggleNewEvent ->
-            ( { model | newEventOpen = not model.newEventOpen }, Cmd.none )
-
-        UpdateNewEvent field value ->
+        ShowEventForm id ->
             let
+                newId =
+                    if model.eventFormOpen == id then
+                        -1
+                    else
+                        id
+
                 event =
-                    model.newEvent
+                    List.take newId model.events |> List.reverse |> List.head
+
+                eventForm =
+                    case event of
+                        Nothing ->
+                            { from = DateExtra.toISOString <| Date.fromTime model.now
+                            , to = DateExtra.toISOString <| Date.fromTime model.now
+                            , color = Color.Convert.colorToHex fallbackColor
+                            , label = ""
+                            }
+
+                        Just event ->
+                            { from = DateExtra.toISOString event.from
+                            , to = DateExtra.toISOString event.to
+                            , color = Color.Convert.colorToHex event.color
+                            , label = event.label
+                            }
+            in
+                ( { model | eventFormOpen = newId, eventForm = eventForm }, Cmd.none )
+
+        UpdateEvent field value ->
+            let
+                form =
+                    model.eventForm
 
                 -- TODO: this is kinda gross, is there a better way?
-                newEvent =
+                newForm =
                     case field of
                         EventFrom ->
-                            { event | from = DateExtra.fromStringWithFallback value event.from }
+                            { form | from = value }
 
                         EventTo ->
-                            { event | to = DateExtra.fromStringWithFallback value event.to }
+                            { form | to = value }
 
                         EventColor ->
-                            { event | color = Color.Convert.hexToColor value |> Maybe.withDefault fallbackColor }
+                            { form | color = value }
 
                         EventLabel ->
-                            { event | label = value }
+                            { form | label = value }
             in
-                ( { model | newEvent = newEvent }, Cmd.none )
+                ( { model | eventForm = newForm }, Cmd.none )
 
-        SaveNewEvent ->
+        SaveEvent ->
             let
+                eventForm =
+                    model.eventForm
+
+                newEvent =
+                    { from =
+                        DateExtra.fromStringWithFallback eventForm.from (Date.fromTime 0)
+                    , to =
+                        DateExtra.fromStringWithFallback eventForm.to (Date.fromTime 0)
+                    , color =
+                        Color.Convert.hexToColor eventForm.color |> Maybe.withDefault fallbackColor
+                    , label = eventForm.label
+                    }
+
+                newEvents =
+                    if model.eventFormOpen == 0 then
+                        newEvent :: model.events
+                    else
+                        List.indexedMap
+                            (\index ->
+                                \event ->
+                                    if index + 1 == model.eventFormOpen then
+                                        newEvent
+                                    else
+                                        event
+                            )
+                            model.events
+
                 events =
-                    (model.newEvent :: model.events)
-                        |> List.sortBy (\event -> DateExtra.toISOString event.from)
+                    List.sortBy (\event -> DateExtra.toISOString event.from) newEvents
 
                 newModel =
-                    { model | events = events, newEventOpen = False }
+                    { model | events = events, eventFormOpen = -1 }
             in
                 ( newModel, updateUrl newModel )
 

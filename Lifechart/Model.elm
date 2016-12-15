@@ -16,8 +16,8 @@ type alias Model =
     , lifeExpectancyString : String
     , hideUnproductiveYears : Bool
     , events : List Event
-    , newEventOpen : Bool
-    , newEvent : Event
+    , eventFormOpen : Int
+    , eventForm : EventForm
     , modalOpen : Bool
     , now : Time
     }
@@ -41,6 +41,14 @@ type alias Event =
     }
 
 
+type alias EventForm =
+    { from : String
+    , to : String
+    , color : String
+    , label : String
+    }
+
+
 initialModel : Model
 initialModel =
     { birthDate = DateExtra.unsafeFromString "1988-07-24"
@@ -51,8 +59,8 @@ initialModel =
     , lifeExpectancyString = "80"
     , hideUnproductiveYears = False
     , events = []
-    , newEventOpen = False
-    , newEvent = initialEvent
+    , eventFormOpen = -1
+    , eventForm = EventForm "" "" "" ""
     , modalOpen = False
     , now = 0
     }
@@ -75,19 +83,10 @@ mergeJsonModel jsonModel =
 mergeModel : Model -> Model -> Model
 mergeModel newModel baseModel =
     { newModel
-        | newEventOpen = baseModel.newEventOpen
-        , newEvent = baseModel.newEvent
+        | eventFormOpen = baseModel.eventFormOpen
+        , eventForm = baseModel.eventForm
         , modalOpen = baseModel.modalOpen
         , now = baseModel.now
-    }
-
-
-initialEvent : Event
-initialEvent =
-    { from = Date.fromTime 0
-    , to = Date.fromTime 0
-    , color = Color.black
-    , label = ""
     }
 
 
@@ -109,9 +108,9 @@ type Msg
     | NewDateOfBirth String
     | NewLifeExpectancy String
     | HideUnproductiveYears Bool
-    | ToggleNewEvent
-    | UpdateNewEvent NewEventField String
-    | SaveNewEvent
+    | ShowEventForm Int
+    | UpdateEvent NewEventField String
+    | SaveEvent
     | NewConfig String
     | ToggleModal
 

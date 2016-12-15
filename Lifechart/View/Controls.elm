@@ -156,102 +156,117 @@ config model =
 
 newEvent : Model -> List (Html Msg)
 newEvent model =
+    [ li [ class "list-group-item" ]
+        [ h5 [ class "mb-0" ]
+            [ span [] [ text "Events" ]
+            , a
+                [ href "javascript:void(0)"
+                , onClick (ShowEventForm 0)
+                , class "float-xs-right"
+                ]
+                [ text "Add event" ]
+            ]
+        ]
+    , eventForm model 0
+    ]
+
+
+eventForm : Model -> Int -> Html Msg
+eventForm model index =
     let
+        event =
+            model.eventForm
+
         visibility =
-            if model.newEventOpen then
+            if model.eventFormOpen == index then
                 ""
             else
                 " hidden-xs-up"
-
-        inputs =
-            [ div [ class "row form-group" ]
-                [ div [ class "col-xs-6" ]
-                    [ div [ class "input-group" ]
-                        [ span [ class "input-group-addon" ] [ text "From" ]
-                        , input
-                            (List.append dateInputAttributes
-                                [ class "form-control"
-                                , onInput (UpdateNewEvent EventFrom)
-                                ]
-                            )
-                            []
-                        ]
-                    ]
-                , div [ class "col-xs-6" ]
-                    [ div [ class "input-group" ]
-                        [ span [ class "input-group-addon" ] [ text "To" ]
-                        , input
-                            (List.append dateInputAttributes
-                                [ class "form-control"
-                                , onInput (UpdateNewEvent EventTo)
-                                ]
-                            )
-                            []
-                        ]
-                    ]
-                ]
-            , div [ class "row form-group" ]
-                [ div [ class "col-xs-6" ]
-                    [ div [ class "input-group" ]
-                        [ span [ class "input-group-addon" ] [ text "Label" ]
-                        , input
-                            [ class "form-control"
-                            , type_ "text"
-                            , required True
-                            , onInput (UpdateNewEvent EventLabel)
-                            ]
-                            []
-                        ]
-                    ]
-                , div [ class "col-xs-3" ]
-                    [ div [ class "input-group" ]
-                        [ span [ class "input-group-addon" ] [ text "Color" ]
-                        , input
-                            [ class "form-control"
-                            , type_ "color"
-                            , required True
-                            , style [ ( "height", "2.5rem" ) ]
-                            , onInput (UpdateNewEvent EventColor)
-                            ]
-                            []
-                        ]
-                    ]
-                , div [ class "col-xs-3 text-xs-right" ]
-                    [ input
-                        [ class "btn btn-primary"
-                        , type_ "submit"
-                        , value "Add"
-                        ]
-                        []
-                    ]
-                ]
-            ]
     in
-        [ li [ class "list-group-item" ]
-            [ h5 [ class "mb-0" ]
-                [ span [] [ text "Events" ]
-                , a
-                    [ href "javascript:void(0)"
-                    , onClick ToggleNewEvent
-                    , class "float-xs-right"
+        li [ class <| "list-group-item" ++ visibility ]
+            [ Html.form [ onSubmit SaveEvent ]
+                [ div [ class "row form-group" ]
+                    [ div [ class "col-xs-6" ]
+                        [ div [ class "input-group" ]
+                            [ span [ class "input-group-addon" ] [ text "From" ]
+                            , input
+                                (List.append dateInputAttributes
+                                    [ class "form-control"
+                                    , value event.from
+                                    , onInput (UpdateEvent EventFrom)
+                                    ]
+                                )
+                                []
+                            ]
+                        ]
+                    , div [ class "col-xs-6" ]
+                        [ div [ class "input-group" ]
+                            [ span [ class "input-group-addon" ] [ text "To" ]
+                            , input
+                                (List.append dateInputAttributes
+                                    [ class "form-control"
+                                    , value event.to
+                                    , onInput (UpdateEvent EventTo)
+                                    ]
+                                )
+                                []
+                            ]
+                        ]
                     ]
-                    [ text "Add event" ]
+                , div [ class "row form-group" ]
+                    [ div [ class "col-xs-6" ]
+                        [ div [ class "input-group" ]
+                            [ span [ class "input-group-addon" ] [ text "Label" ]
+                            , input
+                                [ class "form-control"
+                                , type_ "text"
+                                , required True
+                                , value event.label
+                                , onInput (UpdateEvent EventLabel)
+                                ]
+                                []
+                            ]
+                        ]
+                    , div [ class "col-xs-3" ]
+                        [ div [ class "input-group" ]
+                            [ span [ class "input-group-addon" ] [ text "Color" ]
+                            , input
+                                [ class "form-control"
+                                , type_ "color"
+                                , required True
+                                , value event.color
+                                , style [ ( "height", "2.5rem" ) ]
+                                , onInput (UpdateEvent EventColor)
+                                ]
+                                []
+                            ]
+                        ]
+                    , div [ class "col-xs-3 text-xs-right" ]
+                        [ input
+                            [ class "btn btn-primary"
+                            , type_ "submit"
+                            , value
+                                (if index == 0 then
+                                    "Add"
+                                 else
+                                    "Save"
+                                )
+                            ]
+                            []
+                        ]
+                    ]
                 ]
             ]
-        , li [ class <| "list-group-item" ++ visibility ]
-            [ Html.form [ onSubmit SaveNewEvent ] inputs
-            ]
-        ]
 
 
 events : Model -> List (Html Msg)
 events model =
     let
-        makeEvent event =
-            li [ class "list-group-item" ]
+        makeEvent event index =
+            [ li [ class "list-group-item" ]
                 [ div
                     [ class "row" ]
-                    [ div [ class "col-xs-5" ]
+                    [ div [ class "col-xs-3" ]
                         [ div
                             [ class "float-xs-left"
                             , style
@@ -264,16 +279,26 @@ events model =
                             []
                         , span [] [ text event.label ]
                         ]
-                    , div [ class "col-xs-5 text-muted" ]
+                    , div [ class "col-xs-7 text-xs-right text-muted" ]
                         [ text <|
                             DateExtra.toISOString event.from
                                 ++ " to "
                                 ++ DateExtra.toISOString event.to
+                                ++ " ("
+                                ++ eventPercentage event model
+                                ++ "%)"
                         ]
-                    , div [ class "col-xs-2 text-xs-right text-muted" ]
-                        [ text <| eventPercentage event model ++ "%" ]
+                    , div [ class "col-xs-2 text-xs-right" ]
+                        [ a
+                            [ href "javascript:void(0)"
+                            , onClick (ShowEventForm index)
+                            ]
+                            [ text "edit" ]
+                        ]
                     ]
                 ]
+            , eventForm model index
+            ]
 
         eventPercentage event model =
             100
@@ -282,13 +307,19 @@ events model =
                 |> roundToPadded 1
 
         list =
-            if List.isEmpty model.events then
+            if List.isEmpty events then
                 [ li [ class "list-group-item" ]
                     [ div [ class "text-muted text-xs-center" ] [ text "no events yet" ]
                     ]
                 ]
             else
-                List.map makeEvent model.events
+                List.concat <|
+                    List.indexedMap
+                        (\index -> \event -> makeEvent event (index + 1))
+                        events
+
+        events =
+            model.events
     in
         [ div [ class "card" ]
             [ ul [ class "list-group list-group-flush" ] <|
