@@ -334,7 +334,7 @@ events model =
                             ]
                             [ text <|
                                 if event.overlay then
-                                    String.left 1 event.label
+                                    eventInitial event
                                 else
                                     ""
                             ]

@@ -237,9 +237,7 @@ week model year week =
                 |> Maybe.andThen
                     (\overlay ->
                         Just
-                            (overlay.label
-                                |> String.left 1
-                                |> String.toUpper
+                            (eventInitial overlay
                                 |> Text.fromString
                                 |> Text.monospace
                                 |> Text.height weekWidth

@@ -153,3 +153,8 @@ partialDate model year =
             , toString <| DateExtra.monthToInt <| Date.month model.birthDate
             , toString <| Date.day model.birthDate
             ]
+
+
+eventInitial : Event -> String
+eventInitial event =
+    event.label |> String.left 1 |> String.toUpper
