@@ -1,3 +1,13 @@
+module Lifechart.Demo exposing (base64)
+
+import Base64
+
+
+base64 : String
+base64 =
+    let
+        json =
+            """
 {
   "birth-date": "1988-07-24",
   "life-expectancy": 80,
@@ -21,3 +31,6 @@
     }
   ]
 }
+"""
+    in
+        Base64.encode json |> Result.toMaybe |> Maybe.withDefault ""

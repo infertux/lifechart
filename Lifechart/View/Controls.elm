@@ -10,6 +10,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Lifechart.Model exposing (..)
 import Lifechart.Serializer as Serializer
+import Lifechart.Demo as Demo
 
 
 modal : Model -> Html Msg
@@ -66,15 +67,12 @@ controls model =
 links : Model -> List (Html Msg)
 links model =
     let
-        demo =
-            "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImhpZGUtdW5wcm9kdWN0aXZlLXllYXJzIjogZmFsc2UsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIsCiAgICAgICJvdmVybGF5IjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJmcm9tIjogIjIwMTUtMDYtMDEiLAogICAgICAidG8iOiAiMjAxNi0wNS0zMSIsCiAgICAgICJjb2xvciI6ICIjNzNkMjE2IiwKICAgICAgImxhYmVsIjogInRyaXAiLAogICAgICAib3ZlcmxheSI6IGZhbHNlCiAgICB9CiAgXQp9Cg=="
-
         current =
             Serializer.serialize model
     in
         [ nav [ class "nav nav-inline text-xs-center mb-1" ]
             [ a [ class "nav-link", href "#" ] [ text "blank chart" ]
-            , a [ class "nav-link", href <| "#" ++ demo ] [ text "demo chart" ]
+            , a [ class "nav-link", href <| "#" ++ Demo.base64 ] [ text "demo chart" ]
             , a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ]
             ]
         ]
