@@ -309,35 +309,7 @@ events model =
                 [ div
                     [ class "row" ]
                     [ div [ class "col-xs-3" ]
-                        [ div
-                            [ class "float-xs-left"
-                            , style
-                                [ ( "width", "1rem" )
-                                , ( "height", "1rem" )
-                                , ( "line-height", "1rem" )
-                                , ( "font-weight", "bold" )
-                                , ( "color", "#FFFFFF" )
-                                , ( "margin", "3px 0.5rem 0 0" )
-                                , ( "padding"
-                                  , if event.overlay then
-                                        "0 0 3px 3px"
-                                    else
-                                        "0"
-                                  )
-                                , ( "background-color"
-                                  , if event.overlay then
-                                        "#000000"
-                                    else
-                                        Color.Convert.colorToHex event.color
-                                  )
-                                ]
-                            ]
-                            [ text <|
-                                if event.overlay then
-                                    eventInitial event
-                                else
-                                    ""
-                            ]
+                        [ eventIcon event
                         , span [] [ text event.label ]
                         ]
                     , div [ class "col-xs-7 text-xs-right text-muted" ]
@@ -360,6 +332,37 @@ events model =
                 ]
             , eventForm model index
             ]
+
+        eventIcon event =
+            div
+                [ class "float-xs-left"
+                , style
+                    [ ( "width", "1rem" )
+                    , ( "height", "1rem" )
+                    , ( "line-height", "1rem" )
+                    , ( "font-weight", "bold" )
+                    , ( "color", "#FFFFFF" )
+                    , ( "margin", "3px 0.5rem 0 0" )
+                    , ( "padding"
+                      , if event.overlay then
+                            "0 0 3px 3px"
+                        else
+                            "0"
+                      )
+                    , ( "background-color"
+                      , if event.overlay then
+                            "#000000"
+                        else
+                            Color.Convert.colorToHex event.color
+                      )
+                    ]
+                ]
+                [ text <|
+                    if event.overlay then
+                        eventInitial event
+                    else
+                        ""
+                ]
 
         eventPercentage event model =
             100

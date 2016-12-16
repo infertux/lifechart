@@ -203,59 +203,39 @@ week model year week =
             yearWeekToTime model ( year, week )
 
         match event =
-            (Date.toTime event.from <= time)
-                && (Date.toTime event.to >= time)
+            (Date.toTime event.from <= time) && (Date.toTime event.to >= time)
 
         ( overlays, events ) =
             List.filter match model.events |> List.partition .overlay
 
-        colors =
-            List.map .color events
-
         weekColor =
-            List.head colors |> Maybe.andThen mixColors
+            List.map .color events |> mixColors
 
-        mixColors firstColor =
-            Just <|
-                List.foldl
-                    (\oldColor ->
-                        \newColor ->
-                            Color.Interpolate.interpolate
-                                Color.Interpolate.HSL
-                                oldColor
-                                newColor
-                                0.5
-                    )
-                    firstColor
-                    (List.drop 1 colors)
+        initial =
+            List.head overlays |> Maybe.andThen makeInitial
+
+        makeInitial event =
+            Just
+                (eventInitial event
+                    |> Text.fromString
+                    |> Text.monospace
+                    |> Text.height weekWidth
+                    |> Text.bold
+                    |> Text.color Color.white
+                    |> Collage.text
+                    |> Collage.moveY 1
+                )
 
         square color =
             Collage.square weekWidth |> Collage.filled color
 
-        letter =
-            List.head overlays
-                |> Maybe.andThen
-                    (\overlay ->
-                        Just
-                            (eventInitial overlay
-                                |> Text.fromString
-                                |> Text.monospace
-                                |> Text.height weekWidth
-                                |> Text.bold
-                                |> Text.color Color.white
-                                |> Collage.text
-                                |> Collage.moveY 1
-                            )
-                    )
-
         filled color =
-            Collage.group <|
-                case letter of
-                    Nothing ->
-                        [ square color ]
+            case initial of
+                Nothing ->
+                    square color
 
-                    Just letter ->
-                        [ square color, letter ]
+                Just initial ->
+                    Collage.group [ square color, initial ]
 
         outlined =
             Collage.square (weekWidth - weekBorder) |> Collage.outlined lineStyle
@@ -276,6 +256,27 @@ week model year week =
 
                 Just color ->
                     filled color
+
+
+mixColors : List Color -> Maybe Color
+mixColors colors =
+    case colors of
+        [] ->
+            Nothing
+
+        firstColor :: otherColors ->
+            Just <|
+                List.foldl
+                    (\oldColor ->
+                        \newColor ->
+                            Color.Interpolate.interpolate
+                                Color.Interpolate.HSL
+                                oldColor
+                                newColor
+                                0.5
+                    )
+                    firstColor
+                    otherColors
 
 
 outOfBounds : Model -> Time -> Bool

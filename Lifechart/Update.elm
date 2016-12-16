@@ -14,9 +14,7 @@ init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
     let
         model =
-            decodeModel location
-                |> Result.toMaybe
-                |> Maybe.withDefault initialModel
+            decodeModel location |> Result.toMaybe |> Maybe.withDefault initialModel
     in
         ( model, Task.perform Tick Time.now )
 
@@ -29,50 +27,52 @@ update msg model =
 
         NewUrl location ->
             let
-                urlModel =
-                    decodeModel location
-                        |> Result.toMaybe
-                        |> Maybe.withDefault model
-
                 newModel =
-                    mergeModel urlModel model
+                    case decodeModel location of
+                        Ok urlModel ->
+                            mergeModel model urlModel
+
+                        Err _ ->
+                            model
             in
                 ( newModel, Cmd.none )
 
         NewBirthDate string ->
-            case Date.fromString string of
-                Ok date ->
-                    let
-                        newModel =
-                            { model
-                                | birthDateString = string
-                                , birthDate = date
-                            }
-                    in
-                        ( newModel, updateUrl newModel )
+            let
+                stringModel =
+                    { model | birthDateString = string }
+            in
+                case Date.fromString string of
+                    Ok date ->
+                        let
+                            newModel =
+                                { stringModel | birthDate = date }
+                        in
+                            ( newModel, updateUrl newModel )
 
-                Err _ ->
-                    ( { model | birthDateString = string }, Cmd.none )
+                    Err _ ->
+                        ( stringModel, Cmd.none )
 
         NewLifeExpectancy string ->
             let
+                stringModel =
+                    { model | lifeExpectancyString = string }
+
                 int =
                     String.toInt string |> Result.toMaybe |> Maybe.withDefault 0
             in
                 if int < minLifeExpectancy model || int > 500 then
-                    ( { model | lifeExpectancyString = string }, Cmd.none )
+                    ( stringModel, Cmd.none )
                 else
                     let
                         newModel =
-                            { model
-                                | lifeExpectancyString = string
-                                , lifeExpectancy = int
-                            }
+                            { stringModel | lifeExpectancy = int }
                     in
                         ( newModel, updateUrl newModel )
 
         HideUnproductiveYears bool ->
             let
+                -- TODO: fix this dirty hack somehow
                 tempModel =
                     { model | hideUnproductiveYears = bool }
 
@@ -98,12 +98,7 @@ update msg model =
                 eventForm =
                     case event of
                         Nothing ->
-                            { from = DateExtra.toISOString <| Date.fromTime model.now
-                            , to = DateExtra.toISOString <| Date.fromTime model.now
-                            , color = Color.Convert.colorToHex fallbackColor
-                            , label = ""
-                            , overlay = False
-                            }
+                            initialEventForm model
 
                         Just event ->
                             { from = DateExtra.toISOString event.from
@@ -149,28 +144,20 @@ update msg model =
 
         SaveEvent ->
             let
-                eventForm =
-                    model.eventForm
+                existingEvent =
+                    model.eventFormOpen /= 0
 
-                newEvent =
-                    { from =
-                        DateExtra.fromStringWithFallback eventForm.from (Date.fromTime 0)
-                    , to =
-                        DateExtra.fromStringWithFallback eventForm.to (Date.fromTime 0)
-                    , color =
-                        Color.Convert.hexToColor eventForm.color |> Maybe.withDefault fallbackColor
-                    , label = eventForm.label
-                    , overlay = eventForm.overlay
-                    }
+                currentEvent =
+                    createEvent model.eventForm
 
-                newEvents =
-                    if model.eventFormOpen == 0 then
-                        model.events
+                otherEvents =
+                    if existingEvent then
+                        deleteItem (model.eventFormOpen - 1) model.events
                     else
-                        deleteEvent model.eventFormOpen model.events
+                        model.events
 
                 events =
-                    (newEvent :: newEvents)
+                    (currentEvent :: otherEvents)
                         |> List.sortBy (\event -> DateExtra.toISOString event.from)
 
                 newModel =
@@ -181,7 +168,7 @@ update msg model =
         DeleteEvent ->
             let
                 events =
-                    deleteEvent model.eventFormOpen model.events
+                    deleteItem (model.eventFormOpen - 1) model.events
 
                 newModel =
                     { model | events = events, eventFormOpen = -1 }
@@ -190,13 +177,13 @@ update msg model =
 
         NewConfig json ->
             let
-                jsonModel =
-                    Serializer.deserializeJson json
-                        |> Result.toMaybe
-                        |> Maybe.withDefault model
-
                 newModel =
-                    mergeModel jsonModel model
+                    case Serializer.deserializeJson json of
+                        Ok jsonModel ->
+                            mergeModel model jsonModel
+
+                        Err _ ->
+                            model
             in
                 ( newModel, updateUrl newModel )
 
@@ -236,15 +223,15 @@ minLifeExpectancy model =
         1
 
 
-deleteEvent : Int -> List Event -> List Event
-deleteEvent index events =
+deleteItem : Int -> List a -> List a
+deleteItem index list =
     List.indexedMap
         (\i ->
-            \event ->
-                if i + 1 == index then
+            \item ->
+                if i == index then
                     Nothing
                 else
-                    Just event
+                    Just item
         )
-        events
+        list
         |> List.filterMap identity

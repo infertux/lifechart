@@ -2,6 +2,7 @@ module Lifechart.Model exposing (..)
 
 import Date exposing (Date)
 import Color exposing (Color)
+import Color.Convert
 import Time exposing (Time)
 import Navigation
 import DateExtra
@@ -83,12 +84,32 @@ mergeJsonModel jsonModel =
 
 
 mergeModel : Model -> Model -> Model
-mergeModel newModel baseModel =
+mergeModel baseModel newModel =
     { newModel
         | eventFormOpen = baseModel.eventFormOpen
         , eventForm = baseModel.eventForm
         , modalOpen = baseModel.modalOpen
         , now = baseModel.now
+    }
+
+
+initialEventForm : Model -> EventForm
+initialEventForm model =
+    { from = DateExtra.toISOString <| Date.fromTime model.now
+    , to = DateExtra.toISOString <| Date.fromTime model.now
+    , color = Color.Convert.colorToHex fallbackColor
+    , label = ""
+    , overlay = False
+    }
+
+
+createEvent : EventForm -> Event
+createEvent form =
+    { from = DateExtra.fromStringWithFallback form.from (Date.fromTime 0)
+    , to = DateExtra.fromStringWithFallback form.to (Date.fromTime 0)
+    , color = Color.Convert.hexToColor form.color |> Maybe.withDefault fallbackColor
+    , label = form.label
+    , overlay = form.overlay
     }
 
 
