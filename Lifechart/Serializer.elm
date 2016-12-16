@@ -79,16 +79,18 @@ encodeEvent event =
         , ( "to", encodeDate event.to )
         , ( "color", encodeColor event.color )
         , ( "label", Encode.string event.label )
+        , ( "location", Encode.bool event.location )
         ]
 
 
 eventDecoder : Decode.Decoder Event
 eventDecoder =
-    Decode.map4 Event
+    Decode.map5 Event
         (Decode.field "from" dateDecoder)
         (Decode.field "to" dateDecoder)
         (Decode.field "color" colorDecoder)
         (Decode.field "label" Decode.string)
+        (Decode.field "location" Decode.bool)
 
 
 encodeDate : Date -> Encode.Value

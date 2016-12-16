@@ -38,6 +38,7 @@ type alias Event =
     , to : Date
     , color : Color
     , label : String
+    , location : Bool
     }
 
 
@@ -46,6 +47,7 @@ type alias EventForm =
     , to : String
     , color : String
     , label : String
+    , location : Bool
     }
 
 
@@ -60,7 +62,7 @@ initialModel =
     , hideUnproductiveYears = False
     , events = []
     , eventFormOpen = -1
-    , eventForm = EventForm "" "" "" ""
+    , eventForm = EventForm "" "" "" "" False
     , modalOpen = False
     , now = 0
     }
@@ -105,11 +107,12 @@ type NewEventField
 type Msg
     = Tick Time
     | NewUrl Navigation.Location
-    | NewDateOfBirth String
+    | NewBirthDate String
     | NewLifeExpectancy String
     | HideUnproductiveYears Bool
     | ShowEventForm Int
     | UpdateEvent NewEventField String
+    | UpdateEventLocation Bool
     | SaveEvent
     | DeleteEvent
     | NewConfig String

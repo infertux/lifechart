@@ -7,7 +7,7 @@ import DateExtra
 import Color.Convert
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, onClick, onSubmit)
+import Html.Events exposing (..)
 import Lifechart.Model exposing (..)
 import Lifechart.Serializer as Serializer
 
@@ -67,7 +67,7 @@ links : Model -> List (Html Msg)
 links model =
     let
         demo =
-            "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImhpZGUtdW5wcm9kdWN0aXZlLXllYXJzIjogZmFsc2UsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIKICAgIH0sCiAgICB7CiAgICAgICJmcm9tIjogIjIwMTUtMDYtMDEiLAogICAgICAidG8iOiAiMjAxNi0wNS0zMSIsCiAgICAgICJjb2xvciI6ICIjNzNkMjE2IiwKICAgICAgImxhYmVsIjogInRyaXAiCiAgICB9CiAgXQp9Cg=="
+            "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImhpZGUtdW5wcm9kdWN0aXZlLXllYXJzIjogZmFsc2UsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIsCiAgICAgICJsb2NhdGlvbiI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiZnJvbSI6ICIyMDE1LTA2LTAxIiwKICAgICAgInRvIjogIjIwMTYtMDUtMzEiLAogICAgICAiY29sb3IiOiAiIzczZDIxNiIsCiAgICAgICJsYWJlbCI6ICJ0cmlwIiwKICAgICAgImxvY2F0aW9uIjogZmFsc2UKICAgIH0KICBdCn0K"
 
         current =
             Serializer.serialize model
@@ -89,7 +89,7 @@ config model =
                 (List.append dateInputAttributes
                     [ class "form-control form-control-lg"
                     , value model.birthDateString
-                    , onInput NewDateOfBirth
+                    , onInput NewBirthDate
                     ]
                 )
                 []
@@ -187,7 +187,12 @@ eventForm model index =
             index == 0
 
         delete =
-            a [ href "javascript:void(0)", onClick DeleteEvent ] [ text "delete" ]
+            a
+                [ class "btn btn-danger"
+                , href "javascript:void(0)"
+                , onClick DeleteEvent
+                ]
+                [ text "Delete" ]
 
         submit =
             input
@@ -207,6 +212,9 @@ eventForm model index =
                 [ submit ]
             else
                 [ delete, submit ]
+
+        webkitHack =
+            style [ ( "width", "171px" ) ]
     in
         li [ class <| "list-group-item" ++ visibility ]
             [ Html.form [ onSubmit SaveEvent ]
@@ -218,6 +226,7 @@ eventForm model index =
                                 (List.append dateInputAttributes
                                     [ class "form-control"
                                     , value event.from
+                                    , webkitHack
                                     , onInput (UpdateEvent EventFrom)
                                     ]
                                 )
@@ -244,26 +253,51 @@ eventForm model index =
                             [ span [ class "input-group-addon" ] [ text "Label" ]
                             , input
                                 [ class "form-control"
+                                , placeholder "label"
                                 , type_ "text"
                                 , required True
                                 , value event.label
+                                , webkitHack
                                 , onInput (UpdateEvent EventLabel)
                                 ]
                                 []
                             ]
                         ]
-                    , div [ class "col-xs-2" ]
-                        [ input
-                            [ class "form-control"
+                    , div [ class "col-xs-6" ]
+                        [ label
+                            [ class "form-check-inline"
+                            , style [ ( "line-height", "2.5rem" ) ]
+                            ]
+                            [ input
+                                [ class "form-check-input"
+                                , type_ "checkbox"
+                                , checked event.location
+                                , onCheck UpdateEventLocation
+                                ]
+                                []
+                            , text " location (overlay)"
+                            ]
+                        , input
+                            [ class <|
+                                "float-xs-right"
+                                    ++ if event.location then
+                                        " hidden-xs-up"
+                                       else
+                                        ""
                             , type_ "color"
                             , required True
                             , value event.color
-                            , style [ ( "height", "2.5rem" ) ]
+                            , style
+                                [ ( "height", "2.5rem" )
+                                , ( "width", "2.5rem" )
+                                ]
                             , onInput (UpdateEvent EventColor)
                             ]
                             []
                         ]
-                    , div [ class "col-xs-4 text-xs-right" ] actions
+                    ]
+                , div [ class "row form-group" ]
+                    [ div [ class "col-xs-12 text-xs-right" ] actions
                     ]
                 ]
             ]
@@ -282,11 +316,30 @@ events model =
                             , style
                                 [ ( "width", "1rem" )
                                 , ( "height", "1rem" )
+                                , ( "line-height", "1rem" )
+                                , ( "font-weight", "bold" )
+                                , ( "color", "#FFFFFF" )
                                 , ( "margin", "3px 0.5rem 0 0" )
-                                , ( "background-color", Color.Convert.colorToHex event.color )
+                                , ( "padding"
+                                  , if event.location then
+                                        "0 0 3px 3px"
+                                    else
+                                        "0"
+                                  )
+                                , ( "background-color"
+                                  , if event.location then
+                                        "#000000"
+                                    else
+                                        Color.Convert.colorToHex event.color
+                                  )
                                 ]
                             ]
-                            []
+                            [ text <|
+                                if event.location then
+                                    String.left 1 event.label
+                                else
+                                    ""
+                            ]
                         , span [] [ text event.label ]
                         ]
                     , div [ class "col-xs-7 text-xs-right text-muted" ]

@@ -9,13 +9,15 @@
       "from": "2010-09-14",
       "to": "2014-02-01",
       "color": "#f57900",
-      "label": "college"
+      "label": "college",
+      "location": false
     },
     {
       "from": "2015-06-01",
       "to": "2016-05-31",
       "color": "#73d216",
-      "label": "trip"
+      "label": "trip",
+      "location": false
     }
   ]
 }

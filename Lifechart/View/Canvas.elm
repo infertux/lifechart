@@ -39,7 +39,7 @@ legendWidth =
 
 weekWidth : number
 weekWidth =
-    9
+    10
 
 
 weekBorder : number
@@ -208,6 +208,11 @@ week model year week =
 
         events =
             List.filter match model.events
+                |> List.filter (\event -> not event.location)
+
+        locations =
+            List.filter match model.events
+                |> List.filter .location
 
         colors =
             List.map .color events
@@ -229,8 +234,35 @@ week model year week =
                     firstColor
                     (List.drop 1 colors)
 
-        filled color =
+        square color =
             Collage.square weekWidth |> Collage.filled color
+
+        letter =
+            List.head locations
+                |> Maybe.andThen
+                    (\location ->
+                        Just
+                            (location.label
+                                |> String.left 1
+                                |> String.toUpper
+                                |> Text.fromString
+                                |> Text.monospace
+                                |> Text.height weekWidth
+                                |> Text.bold
+                                |> Text.color Color.white
+                                |> Collage.text
+                                |> Collage.moveY 1
+                            )
+                    )
+
+        filled color =
+            Collage.group <|
+                case letter of
+                    Nothing ->
+                        [ square color ]
+
+                    Just letter ->
+                        [ square color, letter ]
 
         outlined =
             Collage.square (weekWidth - weekBorder) |> Collage.outlined lineStyle

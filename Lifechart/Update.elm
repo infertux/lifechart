@@ -39,7 +39,7 @@ update msg model =
             in
                 ( newModel, Cmd.none )
 
-        NewDateOfBirth string ->
+        NewBirthDate string ->
             case Date.fromString string of
                 Ok date ->
                     let
@@ -102,6 +102,7 @@ update msg model =
                             , to = DateExtra.toISOString <| Date.fromTime model.now
                             , color = Color.Convert.colorToHex fallbackColor
                             , label = ""
+                            , location = False
                             }
 
                         Just event ->
@@ -109,6 +110,7 @@ update msg model =
                             , to = DateExtra.toISOString event.to
                             , color = Color.Convert.colorToHex event.color
                             , label = event.label
+                            , location = event.location
                             }
             in
                 ( { model | eventFormOpen = newId, eventForm = eventForm }, Cmd.none )
@@ -135,6 +137,16 @@ update msg model =
             in
                 ( { model | eventForm = newForm }, Cmd.none )
 
+        UpdateEventLocation bool ->
+            let
+                form =
+                    model.eventForm
+
+                newForm =
+                    { form | location = bool }
+            in
+                ( { model | eventForm = newForm }, Cmd.none )
+
         SaveEvent ->
             let
                 eventForm =
@@ -148,6 +160,7 @@ update msg model =
                     , color =
                         Color.Convert.hexToColor eventForm.color |> Maybe.withDefault fallbackColor
                     , label = eventForm.label
+                    , location = eventForm.location
                     }
 
                 newEvents =
