@@ -102,7 +102,7 @@ update msg model =
                             , to = DateExtra.toISOString <| Date.fromTime model.now
                             , color = Color.Convert.colorToHex fallbackColor
                             , label = ""
-                            , location = False
+                            , overlay = False
                             }
 
                         Just event ->
@@ -110,7 +110,7 @@ update msg model =
                             , to = DateExtra.toISOString event.to
                             , color = Color.Convert.colorToHex event.color
                             , label = event.label
-                            , location = event.location
+                            , overlay = event.overlay
                             }
             in
                 ( { model | eventFormOpen = newId, eventForm = eventForm }, Cmd.none )
@@ -137,13 +137,13 @@ update msg model =
             in
                 ( { model | eventForm = newForm }, Cmd.none )
 
-        UpdateEventLocation bool ->
+        UpdateEventOverlay bool ->
             let
                 form =
                     model.eventForm
 
                 newForm =
-                    { form | location = bool }
+                    { form | overlay = bool }
             in
                 ( { model | eventForm = newForm }, Cmd.none )
 
@@ -160,7 +160,7 @@ update msg model =
                     , color =
                         Color.Convert.hexToColor eventForm.color |> Maybe.withDefault fallbackColor
                     , label = eventForm.label
-                    , location = eventForm.location
+                    , overlay = eventForm.overlay
                     }
 
                 newEvents =

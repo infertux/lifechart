@@ -206,13 +206,8 @@ week model year week =
             (Date.toTime event.from <= time)
                 && (Date.toTime event.to >= time)
 
-        events =
-            List.filter match model.events
-                |> List.filter (\event -> not event.location)
-
-        locations =
-            List.filter match model.events
-                |> List.filter .location
+        ( overlays, events ) =
+            List.filter match model.events |> List.partition .overlay
 
         colors =
             List.map .color events
@@ -238,11 +233,11 @@ week model year week =
             Collage.square weekWidth |> Collage.filled color
 
         letter =
-            List.head locations
+            List.head overlays
                 |> Maybe.andThen
-                    (\location ->
+                    (\overlay ->
                         Just
-                            (location.label
+                            (overlay.label
                                 |> String.left 1
                                 |> String.toUpper
                                 |> Text.fromString

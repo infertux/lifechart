@@ -38,7 +38,7 @@ type alias Event =
     , to : Date
     , color : Color
     , label : String
-    , location : Bool
+    , overlay : Bool
     }
 
 
@@ -47,7 +47,7 @@ type alias EventForm =
     , to : String
     , color : String
     , label : String
-    , location : Bool
+    , overlay : Bool
     }
 
 
@@ -112,7 +112,7 @@ type Msg
     | HideUnproductiveYears Bool
     | ShowEventForm Int
     | UpdateEvent NewEventField String
-    | UpdateEventLocation Bool
+    | UpdateEventOverlay Bool
     | SaveEvent
     | DeleteEvent
     | NewConfig String

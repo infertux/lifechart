@@ -67,7 +67,7 @@ links : Model -> List (Html Msg)
 links model =
     let
         demo =
-            "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImhpZGUtdW5wcm9kdWN0aXZlLXllYXJzIjogZmFsc2UsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIsCiAgICAgICJsb2NhdGlvbiI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiZnJvbSI6ICIyMDE1LTA2LTAxIiwKICAgICAgInRvIjogIjIwMTYtMDUtMzEiLAogICAgICAiY29sb3IiOiAiIzczZDIxNiIsCiAgICAgICJsYWJlbCI6ICJ0cmlwIiwKICAgICAgImxvY2F0aW9uIjogZmFsc2UKICAgIH0KICBdCn0K"
+            "ewogICJiaXJ0aC1kYXRlIjogIjE5ODgtMDctMjQiLAogICJsaWZlLWV4cGVjdGFuY3kiOiA4MCwKICAia2lkLXVudGlsIjogMTgsCiAgIm9sZC1mcm9tIjogNzAsCiAgImhpZGUtdW5wcm9kdWN0aXZlLXllYXJzIjogZmFsc2UsCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImZyb20iOiAiMjAxMC0wOS0xNCIsCiAgICAgICJ0byI6ICIyMDE0LTAyLTAxIiwKICAgICAgImNvbG9yIjogIiNmNTc5MDAiLAogICAgICAibGFiZWwiOiAiY29sbGVnZSIsCiAgICAgICJvdmVybGF5IjogZmFsc2UKICAgIH0sCiAgICB7CiAgICAgICJmcm9tIjogIjIwMTUtMDYtMDEiLAogICAgICAidG8iOiAiMjAxNi0wNS0zMSIsCiAgICAgICJjb2xvciI6ICIjNzNkMjE2IiwKICAgICAgImxhYmVsIjogInRyaXAiLAogICAgICAib3ZlcmxheSI6IGZhbHNlCiAgICB9CiAgXQp9Cg=="
 
         current =
             Serializer.serialize model
@@ -271,16 +271,16 @@ eventForm model index =
                             [ input
                                 [ class "form-check-input"
                                 , type_ "checkbox"
-                                , checked event.location
-                                , onCheck UpdateEventLocation
+                                , checked event.overlay
+                                , onCheck UpdateEventOverlay
                                 ]
                                 []
-                            , text " location (overlay)"
+                            , text " overlay (e.g. country)"
                             ]
                         , input
                             [ class <|
                                 "float-xs-right"
-                                    ++ if event.location then
+                                    ++ if event.overlay then
                                         " hidden-xs-up"
                                        else
                                         ""
@@ -321,13 +321,13 @@ events model =
                                 , ( "color", "#FFFFFF" )
                                 , ( "margin", "3px 0.5rem 0 0" )
                                 , ( "padding"
-                                  , if event.location then
+                                  , if event.overlay then
                                         "0 0 3px 3px"
                                     else
                                         "0"
                                   )
                                 , ( "background-color"
-                                  , if event.location then
+                                  , if event.overlay then
                                         "#000000"
                                     else
                                         Color.Convert.colorToHex event.color
@@ -335,7 +335,7 @@ events model =
                                 ]
                             ]
                             [ text <|
-                                if event.location then
+                                if event.overlay then
                                     String.left 1 event.label
                                 else
                                     ""
