@@ -26,7 +26,7 @@ modal model =
             Serializer.serializeJson model
     in
         div
-            [ style [ ( "display", open ) ], class "modal in" ]
+            [ style [ "display" => open ], class "modal in" ]
             [ div [ class "modal-dialog" ]
                 [ div [ class "modal-content" ]
                     [ div [ class "modal-body" ]
@@ -212,7 +212,7 @@ eventForm model index =
                 [ delete, submit ]
 
         webkitHack =
-            style [ ( "width", "171px" ) ]
+            style [ "width" => "171px" ]
     in
         li [ class <| "list-group-item" ++ visibility ]
             [ Html.form [ onSubmit SaveEvent ]
@@ -264,7 +264,7 @@ eventForm model index =
                     , div [ class "col-xs-6" ]
                         [ label
                             [ class "form-check-inline"
-                            , style [ ( "line-height", "2.5rem" ) ]
+                            , style [ "line-height" => "2.5rem" ]
                             ]
                             [ input
                                 [ class "form-check-input"
@@ -286,8 +286,8 @@ eventForm model index =
                             , required True
                             , value event.color
                             , style
-                                [ ( "height", "2.5rem" )
-                                , ( "width", "2.5rem" )
+                                [ "height" => "2.5rem"
+                                , "width" => "2.5rem"
                                 ]
                             , onInput (UpdateEvent EventColor)
                             ]
@@ -337,24 +337,22 @@ events model =
             div
                 [ class "float-xs-left"
                 , style
-                    [ ( "width", "1rem" )
-                    , ( "height", "1rem" )
-                    , ( "line-height", "1rem" )
-                    , ( "font-weight", "bold" )
-                    , ( "color", "#FFFFFF" )
-                    , ( "margin", "3px 0.5rem 0 0" )
-                    , ( "padding"
-                      , if event.overlay then
+                    [ "width" => "1rem"
+                    , "height" => "1rem"
+                    , "line-height" => "1rem"
+                    , "font-weight" => "bold"
+                    , "color" => "#FFFFFF"
+                    , "margin" => "3px 0.5rem 0 0"
+                    , "padding"
+                        => if event.overlay then
                             "0 0 3px 3px"
-                        else
+                           else
                             "0"
-                      )
-                    , ( "background-color"
-                      , if event.overlay then
+                    , "background-color"
+                        => if event.overlay then
                             "#000000"
-                        else
+                           else
                             Color.Convert.colorToHex event.color
-                      )
                     ]
                 ]
                 [ text <|
@@ -419,7 +417,7 @@ metrics model =
                     [ class "progress progress-striped"
                     , value percentage
                     , Html.Attributes.max "100"
-                    , style [ ( "height", "1.7rem" ) ]
+                    , style [ "height" => "1.7rem" ]
                     ]
                     []
                 ]

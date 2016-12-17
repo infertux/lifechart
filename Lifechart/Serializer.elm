@@ -40,12 +40,12 @@ serializeJson : Model -> String
 serializeJson model =
     Encode.encode 2 <|
         Encode.object
-            [ ( "birth-date", encodeDate model.birthDate )
-            , ( "life-expectancy", Encode.int model.lifeExpectancy )
-            , ( "kid-until", Encode.int model.kidUntil )
-            , ( "old-from", Encode.int model.oldFrom )
-            , ( "hide-unproductive-years", Encode.bool model.hideUnproductiveYears )
-            , ( "events", Encode.list <| List.map encodeEvent model.events )
+            [ "birth-date" => encodeDate model.birthDate
+            , "life-expectancy" => Encode.int model.lifeExpectancy
+            , "kid-until" => Encode.int model.kidUntil
+            , "old-from" => Encode.int model.oldFrom
+            , "hide-unproductive-years" => Encode.bool model.hideUnproductiveYears
+            , "events" => (Encode.list <| List.map encodeEvent model.events)
             ]
 
 
@@ -75,11 +75,11 @@ deserializeJson json =
 encodeEvent : Event -> Encode.Value
 encodeEvent event =
     Encode.object
-        [ ( "from", encodeDate event.from )
-        , ( "to", encodeDate event.to )
-        , ( "color", encodeColor event.color )
-        , ( "label", Encode.string event.label )
-        , ( "overlay", Encode.bool event.overlay )
+        [ "from" => encodeDate event.from
+        , "to" => encodeDate event.to
+        , "color" => encodeColor event.color
+        , "label" => Encode.string event.label
+        , "overlay" => Encode.bool event.overlay
         ]
 
 

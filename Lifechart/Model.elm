@@ -179,3 +179,8 @@ partialDate model year =
 eventInitial : Event -> String
 eventInitial event =
     event.label |> String.left 1 |> String.toUpper
+
+
+(=>) : a -> b -> ( a, b )
+(=>) =
+    (,)
