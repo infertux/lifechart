@@ -1,4 +1,3 @@
-- birthDate input is glitchy on Firefox/Safari
 - fail if event.from > event.to
 - store goals
 - responsive

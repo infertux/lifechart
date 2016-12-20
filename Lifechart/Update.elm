@@ -5,6 +5,7 @@ import Date
 import DateExtra
 import Time
 import Task
+import Regex
 import Color.Convert
 import Lifechart.Model exposing (..)
 import Lifechart.Serializer as Serializer
@@ -41,8 +42,19 @@ update msg model =
             let
                 stringModel =
                     { model | birthDateString = string }
+
+                validFormat =
+                    Regex.contains (Regex.regex "^\\d{4}-\\d{2}-\\d{2}$") string
+
+                -- XXX: we need this pre-check for browsers without support for
+                -- input[type='date'] which may send garbage as the date string
+                date =
+                    if validFormat then
+                        Date.fromString string
+                    else
+                        Err ""
             in
-                case Date.fromString string of
+                case date of
                     Ok date ->
                         let
                             newModel =
