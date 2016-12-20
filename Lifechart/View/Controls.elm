@@ -87,6 +87,7 @@ config model =
                 (List.append dateInputAttributes
                     [ class "form-control form-control-lg"
                     , value model.birthDateString
+                    , Html.Attributes.max <| DateExtra.toISOString <| Date.fromTime model.now
                     , onInput NewBirthDate
                     ]
                 )
@@ -224,6 +225,7 @@ eventForm model index =
                                 (List.append dateInputAttributes
                                     [ class "form-control"
                                     , value event.from
+                                    , Html.Attributes.max event.to
                                     , webkitHack
                                     , onInput (UpdateEvent EventFrom)
                                     ]
@@ -238,6 +240,7 @@ eventForm model index =
                                 (List.append dateInputAttributes
                                     [ class "form-control"
                                     , value event.to
+                                    , Html.Attributes.min event.from
                                     , onInput (UpdateEvent EventTo)
                                     ]
                                 )
