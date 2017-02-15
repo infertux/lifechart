@@ -78,6 +78,16 @@ links model =
         ]
 
 
+circled : Attribute Msg
+circled =
+    style
+        [ ( "background", "#D3D7CF" )
+        , ( "border-radius", "1rem" )
+        , ( "padding", "0 0.35rem" )
+        , ( "margin-left", "0.2rem" )
+        ]
+
+
 config : Model -> List (Html Msg)
 config model =
     [ div [ class "row form-group" ]
@@ -101,8 +111,9 @@ config model =
                 [ href
                     "https://en.wikipedia.org/wiki/List_of_countries_by_life_expectancy"
                 , target "_blank"
+                , circled
                 ]
-                [ text "(?)" ]
+                [ text "?" ]
             ]
         , div [ class "col-xs-7" ]
             [ input
@@ -124,8 +135,9 @@ config model =
                 [ href
                     "https://www.reddit.com/r/GetMotivated/comments/1vyf9r/made_for_myself_thought_of_you_weeks_left/cexas8u/"
                 , target "_blank"
+                , circled
                 ]
-                [ text "(?)" ]
+                [ text "?" ]
             ]
         , div [ class "col-xs-7" ]
             [ label [ class "form-check-inline form-control-lg" ]
