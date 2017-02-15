@@ -452,6 +452,8 @@ footer =
                 [ text "Inspired by "
                 , a [ href "https://i.imgur.com/67aHKhF.jpg", target "_blank" ] [ text "this chart" ]
                 , text " - "
+                , a [ href "http://waitbutwhy.com/2014/05/life-weeks.html", target "_blank" ] [ text "Terrified?" ]
+                , text " - "
                 , a [ href "https://github.com/infertux/lifechart", target "_blank" ] [ text "Source code" ]
                 , text " - "
                 , a [ href "javascript:void(0)", onClick ToggleModal ] [ text "Show raw data" ]
