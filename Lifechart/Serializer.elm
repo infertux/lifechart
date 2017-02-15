@@ -44,7 +44,7 @@ serializeJson model =
             , "life-expectancy" => Encode.int model.lifeExpectancy
             , "kid-until" => Encode.int model.kidUntil
             , "old-from" => Encode.int model.oldFrom
-            , "hide-unproductive-years" => Encode.bool model.hideUnproductiveYears
+            , "only-adult-years" => Encode.bool model.onlyAdultYears
             , "events" => (Encode.list <| List.map encodeEvent model.events)
             ]
 
@@ -56,7 +56,7 @@ jsonDecoder =
         (Decode.field "kid-until" Decode.int)
         (Decode.field "old-from" Decode.int)
         (Decode.field "life-expectancy" Decode.int)
-        (Decode.field "hide-unproductive-years" Decode.bool)
+        (Decode.field "only-adult-years" Decode.bool)
         (Decode.field "events" <| Decode.list eventDecoder)
 
 

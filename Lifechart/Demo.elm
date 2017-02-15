@@ -13,7 +13,7 @@ base64 =
   "life-expectancy": 80,
   "kid-until": 18,
   "old-from": 70,
-  "hide-unproductive-years": false,
+  "only-adult-years": false,
   "events": [
     {
       "from": "2010-09-14",

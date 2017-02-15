@@ -82,11 +82,11 @@ update msg model =
                     in
                         ( newModel, updateUrl newModel )
 
-        HideUnproductiveYears bool ->
+        OnlyAdultYears bool ->
             let
                 -- TODO: fix this dirty hack somehow
                 tempModel =
-                    { model | hideUnproductiveYears = bool }
+                    { model | onlyAdultYears = bool }
 
                 newModel =
                     { tempModel
@@ -229,7 +229,7 @@ updateUrl model =
 
 minLifeExpectancy : Model -> Int
 minLifeExpectancy model =
-    if model.hideUnproductiveYears then
+    if model.onlyAdultYears then
         model.kidUntil
     else
         1

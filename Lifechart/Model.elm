@@ -15,7 +15,7 @@ type alias Model =
     , oldFrom : Int
     , lifeExpectancy : Int
     , lifeExpectancyString : String
-    , hideUnproductiveYears : Bool
+    , onlyAdultYears : Bool
     , events : List Event
     , eventFormOpen : Int
     , eventForm : EventForm
@@ -29,7 +29,7 @@ type alias JsonModel =
     , kidUntil : Int
     , oldFrom : Int
     , lifeExpectancy : Int
-    , hideUnproductiveYears : Bool
+    , onlyAdultYears : Bool
     , events : List Event
     }
 
@@ -60,7 +60,7 @@ initialModel =
     , oldFrom = 70
     , lifeExpectancy = 80
     , lifeExpectancyString = "80"
-    , hideUnproductiveYears = False
+    , onlyAdultYears = False
     , events = []
     , eventFormOpen = -1
     , eventForm = EventForm "" "" "" "" False
@@ -78,7 +78,7 @@ mergeJsonModel jsonModel =
         , oldFrom = jsonModel.oldFrom
         , lifeExpectancy = jsonModel.lifeExpectancy
         , lifeExpectancyString = toString jsonModel.lifeExpectancy
-        , hideUnproductiveYears = jsonModel.hideUnproductiveYears
+        , onlyAdultYears = jsonModel.onlyAdultYears
         , events = jsonModel.events
     }
 
@@ -130,7 +130,7 @@ type Msg
     | NewUrl Navigation.Location
     | NewBirthDate String
     | NewLifeExpectancy String
-    | HideUnproductiveYears Bool
+    | OnlyAdultYears Bool
     | ShowEventForm Int
     | UpdateEvent NewEventField String
     | UpdateEventOverlay Bool
@@ -142,7 +142,7 @@ type Msg
 
 relativeBirthDate : Model -> Date
 relativeBirthDate model =
-    if model.hideUnproductiveYears then
+    if model.onlyAdultYears then
         partialDate model (Date.year model.birthDate + model.kidUntil)
     else
         model.birthDate
@@ -150,7 +150,7 @@ relativeBirthDate model =
 
 relativeDeathDate : Model -> Date
 relativeDeathDate model =
-    if model.hideUnproductiveYears then
+    if model.onlyAdultYears then
         partialDate model (Date.year model.birthDate + maxOldFrom model)
     else
         partialDate model (Date.year model.birthDate + model.lifeExpectancy)

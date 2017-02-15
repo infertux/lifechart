@@ -73,7 +73,7 @@ canvas model =
                 |> Collage.moveX (canvasWidth / 2 - legendWidth + lineHeight)
 
         form =
-            if model.hideUnproductiveYears then
+            if model.onlyAdultYears then
                 Collage.group [ grid ]
             else
                 Collage.group [ grid, theLegend ]
@@ -116,11 +116,11 @@ legend model =
         maxOldFrom =
             Model.maxOldFrom model |> toFloat
 
-        productive =
+        adult =
             if maxOldFrom - kidUntil < 8 then
                 makeText ""
             else
-                makeText "productive years"
+                makeText "adult years"
                     |> Collage.moveY
                         (canvasHeight (lifeExpectancy / 2 - (kidUntil + maxOldFrom) / 2) - textOffset)
 
@@ -139,7 +139,7 @@ legend model =
                     |> Collage.moveY
                         -(canvasHeight ((lifeExpectancy + oldFrom) / 2 - lifeExpectancy / 2) + textOffset)
     in
-        Collage.group [ kid, kidMark, productive, oldMark, old ]
+        Collage.group [ kid, kidMark, adult, oldMark, old ]
 
 
 years : Model -> List Form
@@ -151,7 +151,7 @@ years model =
                     ((0 - toFloat (i - from + 1)) * (weekWidth + weekBorder * 2) - lineHeight)
 
         ( from, to ) =
-            if model.hideUnproductiveYears then
+            if model.onlyAdultYears then
                 ( model.kidUntil, maxOldFrom model )
             else
                 ( 0, model.lifeExpectancy )
@@ -308,7 +308,7 @@ isKid model time =
         kidDate =
             partialDate model (Date.year (relativeBirthDate model) + model.kidUntil)
     in
-        if model.hideUnproductiveYears then
+        if model.onlyAdultYears then
             False
         else
             Date.toTime kidDate >= time
@@ -320,7 +320,7 @@ isOld model time =
         oldDate =
             partialDate model (Date.year (relativeBirthDate model) + model.oldFrom)
     in
-        if model.hideUnproductiveYears then
+        if model.onlyAdultYears then
             False
         else
             Date.toTime oldDate <= time

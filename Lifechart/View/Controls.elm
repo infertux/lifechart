@@ -130,7 +130,7 @@ config model =
         ]
     , div [ class "row form-group" ]
         [ label [ class "col-xs-5 col-form-label col-form-label-lg" ]
-            [ text "Unproductive years "
+            [ text "Non-Adult Years "
             , a
                 [ href
                     "https://www.reddit.com/r/GetMotivated/comments/1vyf9r/made_for_myself_thought_of_you_weeks_left/cexas8u/"
@@ -144,8 +144,8 @@ config model =
                 [ input
                     [ class "form-check-input"
                     , type_ "radio"
-                    , checked <| not model.hideUnproductiveYears
-                    , onClick <| HideUnproductiveYears False
+                    , checked <| not model.onlyAdultYears
+                    , onClick <| OnlyAdultYears False
                     ]
                     []
                 , text " Show"
@@ -154,8 +154,8 @@ config model =
                 [ input
                     [ class "form-check-input"
                     , type_ "radio"
-                    , checked model.hideUnproductiveYears
-                    , onClick <| HideUnproductiveYears True
+                    , checked model.onlyAdultYears
+                    , onClick <| OnlyAdultYears True
                     ]
                     []
                 , text " Hide"
