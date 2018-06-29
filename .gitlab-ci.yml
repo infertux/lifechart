@@ -1,17 +1,11 @@
-# Official language image. Look for the different tagged releases at:
-# https://hub.docker.com/r/library/node/tags/
 image: node:latest
 
-cache:
-  paths:
-    - elm-stuff
-
 before_script:
-  - npm install -g elm
-  - npm install -g uglify-js
+  - export PATH=$PWD/node_modules/.bin:$PATH # we don't have perms to install with -g
+  - npm install elm
+  - npm install uglify-js
   - elm --version
-  - elm-package install --yes
 
-build:
+elm-make:
   script:
-  - ./build.sh
+    - make
