@@ -18,12 +18,7 @@ import Lifechart.Model exposing (..)
 
 serialize : Model -> String
 serialize model =
-    case Base64.encode (serializeJson model) of
-        Err _ ->
-            ""
-
-        Ok string ->
-            string
+    Base64.encode <| serializeJson model
 
 
 deserialize : String -> Result String Model
@@ -123,6 +118,7 @@ colorDecoder =
         |> Decode.andThen
             (\hex ->
                 Color.Convert.hexToColor hex
+                    |> Result.toMaybe
                     |> Maybe.withDefault fallbackColor
                     |> Decode.succeed
             )

@@ -97,9 +97,9 @@ initialEventForm : Model -> EventForm
 initialEventForm model =
     { from = DateExtra.toISOString <| Date.fromTime model.now
     , to = DateExtra.toISOString <| Date.fromTime model.now
-    , color = Color.Convert.colorToHex fallbackColor
     , label = ""
     , overlay = False
+    , color = Color.Convert.colorToHex fallbackColor
     }
 
 
@@ -107,9 +107,12 @@ createEvent : EventForm -> Event
 createEvent form =
     { from = DateExtra.fromStringWithFallback form.from (Date.fromTime 0)
     , to = DateExtra.fromStringWithFallback form.to (Date.fromTime 0)
-    , color = Color.Convert.hexToColor form.color |> Maybe.withDefault fallbackColor
     , label = form.label
     , overlay = form.overlay
+    , color =
+        Color.Convert.hexToColor form.color
+            |> Result.toMaybe
+            |> Maybe.withDefault fallbackColor
     }
 
 
