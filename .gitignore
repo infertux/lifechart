@@ -1,5 +1,3 @@
 /elm-stuff/
-/dist
-/lifechart.js
-/lifechart.min.js
+/public/lifechart.js
 /mine.json

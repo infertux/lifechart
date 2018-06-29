@@ -4,7 +4,8 @@
     "repository": "https://github.com/user/project.git",
     "license": "AGPLv3+",
     "source-directories": [
-        "."
+        "src",
+        "lib"
     ],
     "exposed-modules": [],
     "dependencies": {

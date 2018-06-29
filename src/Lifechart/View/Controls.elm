@@ -30,7 +30,10 @@ modal model =
             [ div [ class "modal-dialog" ]
                 [ div [ class "modal-content" ]
                     [ div [ class "modal-body" ]
-                        [ textarea
+                        [ div
+                            [ class "mb-1" ]
+                            [ text "You can copy/paste JSON below to export/import data." ]
+                        , textarea
                             [ class "form-control"
                             , rows 20
                             , onInput NewConfig
@@ -54,8 +57,8 @@ controls : Model -> Html Msg
 controls model =
     div [] <|
         List.concat
-            [ [ h1 [ class "text-xs-center mb-1" ] [ text "Spend your time wisely." ] ]
-            , [ div [ class "text-xs-center text-muted mb-1" ] [ text "This will either inspire you or terrify you - hopefully the former." ] ]
+            [ [ h1 [ class "text-center mb-2" ] [ text "Spend your time wisely." ] ]
+            , [ div [ class "text-center text-muted mb-1" ] [ text "This will either inspire you or terrify you - hopefully the former." ] ]
             , links model
             , config model
             , metrics model
@@ -70,10 +73,13 @@ links model =
         current =
             Serializer.serialize model
     in
-        [ nav [ class "nav nav-inline text-xs-center mb-1" ]
-            [ a [ class "nav-link", href "#" ] [ text "blank chart" ]
-            , a [ class "nav-link", href <| "#" ++ Demo.base64 ] [ text "demo chart" ]
-            , a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ]
+        [ ul [ class "nav justify-content-center mb-2" ]
+            [ li [ class "nav-item" ]
+                [ a [ class "nav-link active", href "#" ] [ text "blank chart" ] ]
+            , li [ class "nav-item" ]
+                [ a [ class "nav-link", href <| "#" ++ Demo.base64 ] [ text "demo chart" ] ]
+            , li [ class "nav-item" ]
+                [ a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ] ]
             ]
         ]
 
@@ -91,8 +97,8 @@ circled =
 config : Model -> List (Html Msg)
 config model =
     [ div [ class "row form-group" ]
-        [ label [ class "col-xs-5 col-form-label col-form-label-lg" ] [ text "Date of Birth" ]
-        , div [ class "col-xs-7" ]
+        [ label [ class "col-5 col-form-label col-form-label-lg" ] [ text "Date of Birth" ]
+        , div [ class "col-7" ]
             [ input
                 (List.append dateInputAttributes
                     [ class "form-control form-control-lg"
@@ -105,7 +111,7 @@ config model =
             ]
         ]
     , div [ class "row form-group" ]
-        [ label [ class "col-xs-5 col-form-label col-form-label-lg" ]
+        [ label [ class "col-5 col-form-label col-form-label-lg" ]
             [ text "Life Expectancy "
             , a
                 [ href
@@ -115,7 +121,7 @@ config model =
                 ]
                 [ text "?" ]
             ]
-        , div [ class "col-xs-7" ]
+        , div [ class "col-7" ]
             [ input
                 [ class "form-control form-control-lg"
                 , type_ "number"
@@ -129,7 +135,7 @@ config model =
             ]
         ]
     , div [ class "row form-group" ]
-        [ label [ class "col-xs-5 col-form-label col-form-label-lg" ]
+        [ label [ class "col-5 col-form-label col-form-label-lg" ]
             [ text "Non-Adult Years "
             , a
                 [ href
@@ -139,7 +145,7 @@ config model =
                 ]
                 [ text "?" ]
             ]
-        , div [ class "col-xs-7" ]
+        , div [ class "col-7" ]
             [ label [ class "form-check-inline form-control-lg" ]
                 [ input
                     [ class "form-check-input"
@@ -173,7 +179,7 @@ newEvent model =
             , a
                 [ href "javascript:void(0)"
                 , onClick (ShowEventForm 0)
-                , class "float-xs-right"
+                , class "float-right"
                 ]
                 [ text "Add event" ]
             ]
@@ -192,7 +198,7 @@ eventForm model index =
             if model.eventFormOpen == index then
                 ""
             else
-                " hidden-xs-up"
+                " d-none"
 
         newEvent =
             index == 0
@@ -223,31 +229,31 @@ eventForm model index =
                 [ submit ]
             else
                 [ delete, submit ]
-
-        webkitHack =
-            style [ "width" => "171px" ]
     in
         li [ class <| "list-group-item" ++ visibility ]
             [ Html.form [ onSubmit SaveEvent ]
                 [ div [ class "row form-group" ]
-                    [ div [ class "col-xs-6" ]
+                    [ div [ class "col" ]
                         [ div [ class "input-group" ]
-                            [ span [ class "input-group-addon" ] [ text "From" ]
+                            [ div [ class "input-group-prepend" ]
+                                [ div [ class "input-group-text" ] [ text "From" ]
+                                ]
                             , input
                                 (List.append dateInputAttributes
                                     [ class "form-control"
                                     , value event.from
                                     , Html.Attributes.max event.to
-                                    , webkitHack
                                     , onInput (UpdateEvent EventFrom)
                                     ]
                                 )
                                 []
                             ]
                         ]
-                    , div [ class "col-xs-6" ]
+                    , div [ class "col" ]
                         [ div [ class "input-group" ]
-                            [ span [ class "input-group-addon" ] [ text "To" ]
+                            [ div [ class "input-group-prepend" ]
+                                [ div [ class "input-group-text" ] [ text "To" ]
+                                ]
                             , input
                                 (List.append dateInputAttributes
                                     [ class "form-control"
@@ -261,22 +267,23 @@ eventForm model index =
                         ]
                     ]
                 , div [ class "row form-group" ]
-                    [ div [ class "col-xs-6" ]
+                    [ div [ class "col" ]
                         [ div [ class "input-group" ]
-                            [ span [ class "input-group-addon" ] [ text "Label" ]
+                            [ div [ class "input-group-prepend" ]
+                                [ div [ class "input-group-text" ] [ text "Label" ]
+                                ]
                             , input
                                 [ class "form-control"
                                 , placeholder "label"
                                 , type_ "text"
                                 , required True
                                 , value event.label
-                                , webkitHack
                                 , onInput (UpdateEvent EventLabel)
                                 ]
                                 []
                             ]
                         ]
-                    , div [ class "col-xs-6" ]
+                    , div [ class "col" ]
                         [ label
                             [ class "form-check-inline"
                             , style [ "line-height" => "2.5rem" ]
@@ -288,29 +295,26 @@ eventForm model index =
                                 , onCheck UpdateEventOverlay
                                 ]
                                 []
-                            , text " overlay (e.g. country)"
+                            , text " overlay"
                             ]
                         , input
                             [ class <|
-                                "float-xs-right"
+                                "float-right"
                                     ++ if event.overlay then
-                                        " hidden-xs-up"
+                                        " d-none"
                                        else
                                         ""
                             , type_ "color"
                             , required True
                             , value event.color
-                            , style
-                                [ "height" => "2.5rem"
-                                , "width" => "2.5rem"
-                                ]
+                            , style [ "height" => "2.5rem" ]
                             , onInput (UpdateEvent EventColor)
                             ]
                             []
                         ]
                     ]
                 , div [ class "row form-group" ]
-                    [ div [ class "col-xs-12 text-xs-right" ] actions
+                    [ div [ class "col-12 text-right" ] actions
                     ]
                 ]
             ]
@@ -323,11 +327,11 @@ events model =
             [ li [ class "list-group-item" ]
                 [ div
                     [ class "row" ]
-                    [ div [ class "col-xs-3" ]
+                    [ div [ class "col-3" ]
                         [ eventIcon event
                         , span [] [ text event.label ]
                         ]
-                    , div [ class "col-xs-7 text-xs-right text-muted" ]
+                    , div [ class "col-7 text-right text-muted" ]
                         [ text <|
                             DateExtra.toISOString event.from
                                 ++ " to "
@@ -336,7 +340,7 @@ events model =
                                 ++ eventPercentage event model
                                 ++ "%)"
                         ]
-                    , div [ class "col-xs-2 text-xs-right" ]
+                    , div [ class "col-2 text-right" ]
                         [ a
                             [ href "javascript:void(0)"
                             , onClick (ShowEventForm index)
@@ -350,7 +354,7 @@ events model =
 
         eventIcon event =
             div
-                [ class "float-xs-left"
+                [ class "float-left"
                 , style
                     [ "width" => "1rem"
                     , "height" => "1rem"
@@ -386,7 +390,7 @@ events model =
         list =
             if List.isEmpty events then
                 [ li [ class "list-group-item" ]
-                    [ div [ class "text-muted text-xs-center" ] [ text "no events yet" ]
+                    [ div [ class "text-muted text-center" ] [ text "no events yet" ]
                     ]
                 ]
             else
@@ -398,7 +402,7 @@ events model =
         events =
             model.events
     in
-        [ div [ class "card" ]
+        [ div [ class "card mt-4 mb-4" ]
             [ ul [ class "list-group list-group-flush" ] <|
                 List.concat [ newEvent model, list ]
             ]
@@ -419,22 +423,25 @@ metrics model =
                 |> roundToPadded 6
     in
         [ div [ class "row mt-2" ]
-            [ div [ class "col-xs-6" ]
-                [ h4 [] [ span [ class "tag tag-default" ] [ text <| percentage ++ "% elapsed" ] ]
+            [ div [ class "col" ]
+                [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ "% elapsed" ] ]
                 ]
-            , div [ class "col-xs-6 text-xs-right" ]
-                [ h4 [] [ span [ class "tag tag-default" ] [ text <| left ++ " weeks left" ] ]
+            , div [ class "col text-right" ]
+                [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ " weeks left" ] ]
                 ]
             ]
         , div [ class "row mt-1" ]
-            [ div [ class "col-xs-12" ]
-                [ progress
-                    [ class "progress progress-striped"
-                    , value percentage
-                    , Html.Attributes.max "100"
+            [ div [ class "col-12" ]
+                [ div
+                    [ class "progress"
                     , style [ "height" => "1.7rem" ]
                     ]
-                    []
+                    [ div
+                        [ class "progress-bar progress-bar-striped progress-bar-animated"
+                        , style [ "width" => (percentage ++ "%") ]
+                        ]
+                        []
+                    ]
                 ]
             ]
         ]
@@ -443,12 +450,12 @@ metrics model =
 footer : List (Html Msg)
 footer =
     [ div [ class "row mt-1" ]
-        [ div [ class "col-xs-12" ]
+        [ div [ class "col-12" ]
             [ div [ class "alert alert-info" ]
                 [ strong [] [ text "Privacy: " ]
                 , text "this page runs entirely in your browser so no data is sent to any server."
                 ]
-            , p [ class "text-xs-center" ]
+            , p [ class "text-center" ]
                 [ text "Inspired by "
                 , a [ href "https://i.imgur.com/67aHKhF.jpg", target "_blank" ] [ text "this chart" ]
                 , text " - "
@@ -456,9 +463,9 @@ footer =
                 , text " - "
                 , a [ href "https://github.com/infertux/lifechart", target "_blank" ] [ text "Source code" ]
                 , text " - "
-                , a [ href "javascript:void(0)", onClick ToggleModal ] [ text "Show raw data" ]
+                , a [ href "javascript:void(0)", onClick ToggleModal ] [ text "Export raw data" ]
                 ]
-            , div [ class "hidden-xs-up" ]
+            , div [ class "d-none" ]
                 [ strong [] [ text "Reminder: " ]
                 , text "every single person you've ever known will die eventually - and so will you - but "
                 , a [ href "https://youtu.be/k5RH3BdXDOY", target "_blank" ] [ text "don't worry" ]

@@ -12,10 +12,10 @@ view model =
     div []
         [ Controls.modal model
         , div [ class "row" ]
-            [ div [ class "col-xs-6" ] [ Controls.controls model ]
-            , div [ class "col-xs-6" ]
+            [ div [ class "col-6" ] [ Controls.controls model ]
+            , div [ class "col-6" ]
                 [ if model.now == 0 then
-                    h1 [ class "text-xs-center" ] [ text "Loading..." ]
+                    h1 [ class "text-center" ] [ text "Loading..." ]
                   else
                     Canvas.canvas model
                 ]
