@@ -444,10 +444,10 @@ metrics model =
                 |> roundToPadded 6
     in
     [ div [ class "row mt-2" ]
-        [ div [ class "col-12 col-sm" ]
+        [ div [ class "col-12 col-sm text-center text-sm-left" ]
             [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ "% elapsed" ] ]
             ]
-        , div [ class "col-12 col-sm text-sm-right" ]
+        , div [ class "col-12 col-sm text-center text-sm-right" ]
             [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ " weeks left" ] ]
             ]
         ]
