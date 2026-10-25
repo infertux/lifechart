@@ -60,6 +60,7 @@ controls model =
             [ [ h1 [ class "text-center mb-2" ] [ text "Spend your time wisely." ] ]
             , [ div [ class "text-center text-muted mb-1" ] [ text "This will either inspire you or terrify you - hopefully the former." ] ]
             , links model
+            , editOnly (demoHint model)
             , editOnly (config model)
             , metrics model
             , events model
@@ -75,17 +76,41 @@ editOnly content =
     [ div [ class "d-none d-md-block" ] content ]
 
 
+isDemo : Model -> Bool
+isDemo model =
+    Serializer.deserialize Demo.base64
+        |> Result.map (mergeJsonModel model >> Serializer.serialize)
+        |> (==) (Ok (Serializer.serialize model))
+
+
+demoHint : Model -> List (Html Msg)
+demoHint model =
+    if isDemo model then
+        [ div [ class "text-center text-muted mb-2" ]
+            [ text "This is a demo chart. "
+            , a [ href "#" ] [ text "Start your own blank chart" ]
+            , text " or edit this one."
+            ]
+        ]
+
+    else
+        []
+
+
 links : Model -> List (Html Msg)
 links model =
     let
         current =
             Serializer.serialize model
+
+        navLink isActive =
+            classList [ ( "nav-link", True ), ( "active", isActive ) ]
     in
     [ ul [ class "nav justify-content-center mb-2" ]
         [ li [ class "nav-item" ]
-            [ a [ class "nav-link active", href "#" ] [ text "blank chart" ] ]
+            [ a [ navLink (current == Serializer.serialize (initialModel model.key)), href "#" ] [ text "blank chart" ] ]
         , li [ class "nav-item" ]
-            [ a [ class "nav-link", href <| "#" ++ Demo.base64 ] [ text "demo chart" ] ]
+            [ a [ navLink (isDemo model), href <| "#" ++ Demo.base64 ] [ text "demo chart" ] ]
         , li [ class "nav-item" ]
             [ a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ] ]
         ]
