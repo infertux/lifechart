@@ -161,6 +161,7 @@ relativeBirthDate : Model -> Date
 relativeBirthDate model =
     if model.onlyAdultYears then
         partialDate model (Date.year model.birthDate + model.kidUntil)
+
     else
         model.birthDate
 
@@ -169,6 +170,7 @@ relativeDeathDate : Model -> Date
 relativeDeathDate model =
     if model.onlyAdultYears then
         partialDate model (Date.year model.birthDate + maxOldFrom model)
+
     else
         partialDate model (Date.year model.birthDate + model.lifeExpectancy)
 

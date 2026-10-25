@@ -1,6 +1,5 @@
 module Lifechart.View.Canvas exposing (canvas)
 
-import Html exposing (Html)
 import Collage exposing (Collage, LineStyle)
 import Collage.Render
 import Collage.Text as Text exposing (Text)
@@ -8,8 +7,9 @@ import Color exposing (Color)
 import ColorExtra
 import Date
 import DateExtra
-import Time
+import Html exposing (Html)
 import Lifechart.Model as Model exposing (..)
+import Time
 
 
 type alias Form =
@@ -90,10 +90,11 @@ canvas model =
         form =
             if model.onlyAdultYears then
                 Collage.group [ grid ]
+
             else
                 Collage.group [ grid, theLegend ]
     in
-        Collage.Render.svgBox ( canvasWidth, toFloat (ceiling height) ) form
+    Collage.Render.svgBox ( canvasWidth, toFloat (ceiling height) ) form
 
 
 legend : Model -> Form
@@ -135,6 +136,7 @@ legend model =
         adult =
             if oldFromMax - kidUntil < 8 then
                 makeText ""
+
             else
                 makeText "adult years"
                     |> Collage.shiftY
@@ -150,12 +152,13 @@ legend model =
         old =
             if lifeExpectancy - oldFrom < 1 then
                 makeText ""
+
             else
                 makeText "old"
                     |> Collage.shiftY
                         -(canvasHeight ((lifeExpectancy + oldFrom) / 2 - lifeExpectancy / 2) + textOffset)
     in
-        Collage.group [ kid, kidMark, adult, oldMark, old ]
+    Collage.group [ kid, kidMark, adult, oldMark, old ]
 
 
 years : Model -> List Form
@@ -169,10 +172,11 @@ years model =
         ( from, to ) =
             if model.onlyAdultYears then
                 ( model.kidUntil, maxOldFrom model )
+
             else
                 ( 0, model.lifeExpectancy )
     in
-        weekIndexes :: (List.range from to |> List.map makeYear)
+    weekIndexes :: (List.range from to |> List.map makeYear)
 
 
 weekIndexes : Form
@@ -184,11 +188,11 @@ weekIndexes =
                 |> Collage.rendered
                 |> Collage.shiftX (toFloat i * (weekWidth + weekBorder * 2))
     in
-        List.range 1 52
-            |> List.filter (\i -> modBy 2 i /= 0)
-            |> List.map makeIndex
-            |> Collage.group
-            |> Collage.shift ( indexWidth, -10 )
+    List.range 1 52
+        |> List.filter (\i -> modBy 2 i /= 0)
+        |> List.map makeIndex
+        |> Collage.group
+        |> Collage.shift ( indexWidth, -10 )
 
 
 year : Model -> Int -> List Form
@@ -211,7 +215,7 @@ year model index =
                 |> Collage.shiftX
                     (toFloat i * (weekWidth + weekBorder * 2) + indexWidth)
     in
-        label :: (List.range 1 52 |> List.map makeWeek)
+    label :: (List.range 1 52 |> List.map makeWeek)
 
 
 week : Model -> Int -> Int -> Form
@@ -258,22 +262,26 @@ week model yearIndex weekIndex =
         outlined =
             Collage.square (weekWidth - weekBorder) |> Collage.outlined lineStyle
     in
-        if isCurrentWeek model time then
-            filled Color.black |> Collage.opacity 0.5
-        else
-            case weekColor of
-                Nothing ->
-                    if outOfBounds model time then
-                        filled Color.lightGrey
-                    else if isKid model time || isOld model time then
-                        filled Color.grey
-                    else if isPast model time then
-                        filled Color.black
-                    else
-                        outlined
+    if isCurrentWeek model time then
+        filled Color.black |> Collage.opacity 0.5
 
-                Just color ->
-                    filled color
+    else
+        case weekColor of
+            Nothing ->
+                if outOfBounds model time then
+                    filled Color.lightGrey
+
+                else if isKid model time || isOld model time then
+                    filled Color.grey
+
+                else if isPast model time then
+                    filled Color.black
+
+                else
+                    outlined
+
+            Just color ->
+                filled color
 
 
 mixColors : List Color -> Maybe Color
@@ -305,7 +313,7 @@ isCurrentWeek model time =
         halfWeek =
             oneWeek / 2
     in
-        now - halfWeek <= time && time < now + halfWeek
+    now - halfWeek <= time && time < now + halfWeek
 
 
 isPast : Model -> Time -> Bool
@@ -319,10 +327,11 @@ isKid model time =
         kidDate =
             partialDate model (Date.year (relativeBirthDate model) + model.kidUntil)
     in
-        if model.onlyAdultYears then
-            False
-        else
-            DateExtra.toTime kidDate >= time
+    if model.onlyAdultYears then
+        False
+
+    else
+        DateExtra.toTime kidDate >= time
 
 
 isOld : Model -> Time -> Bool
@@ -331,10 +340,11 @@ isOld model time =
         oldDate =
             partialDate model (Date.year (relativeBirthDate model) + model.oldFrom)
     in
-        if model.onlyAdultYears then
-            False
-        else
-            DateExtra.toTime oldDate <= time
+    if model.onlyAdultYears then
+        False
+
+    else
+        DateExtra.toTime oldDate <= time
 
 
 yearWeekToTime : Model -> ( Int, Int ) -> Time
@@ -352,7 +362,7 @@ yearWeekToTime model ( yearIndex, weekIndex ) =
         yearOffset =
             toFloat (weekIndex - 1) * oneWeek + toFloat firstMondayOffset * oneDay
     in
-        DateExtra.toTime beginningOfYear + yearOffset
+    DateExtra.toTime beginningOfYear + yearOffset
 
 
 lineStyle : LineStyle

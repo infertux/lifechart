@@ -33,4 +33,4 @@ base64 =
 }
 """
     in
-        Base64.encode json
+    Base64.encode json

@@ -2,14 +2,14 @@ module Lifechart.Update exposing (init, update)
 
 import Browser
 import Browser.Navigation as Navigation
-import Date
-import Time
-import Task
-import Regex
 import ColorExtra
-import Url exposing (Url)
+import Date
 import Lifechart.Model exposing (..)
 import Lifechart.Serializer as Serializer
+import Regex
+import Task
+import Time
+import Url exposing (Url)
 
 
 init : () -> Url -> Navigation.Key -> ( Model, Cmd Msg )
@@ -21,7 +21,7 @@ init _ url key =
         model =
             decodeModel baseModel url |> Result.withDefault baseModel
     in
-        ( model, Task.perform Tick Time.now )
+    ( model, Task.perform Tick Time.now )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -54,19 +54,20 @@ update msg model =
                 date =
                     if validFormat then
                         Date.fromIsoString string
+
                     else
                         Err ""
             in
-                case date of
-                    Ok birthDate ->
-                        let
-                            newModel =
-                                { stringModel | birthDate = birthDate }
-                        in
-                            ( newModel, updateUrl newModel )
+            case date of
+                Ok birthDate ->
+                    let
+                        newModel =
+                            { stringModel | birthDate = birthDate }
+                    in
+                    ( newModel, updateUrl newModel )
 
-                    Err _ ->
-                        ( stringModel, Cmd.none )
+                Err _ ->
+                    ( stringModel, Cmd.none )
 
         NewLifeExpectancy string ->
             let
@@ -76,14 +77,15 @@ update msg model =
                 int =
                     String.toInt string |> Maybe.withDefault 0
             in
-                if int < minLifeExpectancy model || int > 500 then
-                    ( stringModel, Cmd.none )
-                else
-                    let
-                        newModel =
-                            { stringModel | lifeExpectancy = int }
-                    in
-                        ( newModel, updateUrl newModel )
+            if int < minLifeExpectancy model || int > 500 then
+                ( stringModel, Cmd.none )
+
+            else
+                let
+                    newModel =
+                        { stringModel | lifeExpectancy = int }
+                in
+                ( newModel, updateUrl newModel )
 
         OnlyAdultYears bool ->
             let
@@ -97,13 +99,14 @@ update msg model =
                             Basics.max tempModel.lifeExpectancy (minLifeExpectancy tempModel)
                     }
             in
-                ( newModel, updateUrl newModel )
+            ( newModel, updateUrl newModel )
 
         ShowEventForm id ->
             let
                 newId =
                     if model.eventFormOpen == id then
                         -1
+
                     else
                         id
 
@@ -123,7 +126,7 @@ update msg model =
                             , overlay = existingEvent.overlay
                             }
             in
-                ( { model | eventFormOpen = newId, eventForm = eventForm }, Cmd.none )
+            ( { model | eventFormOpen = newId, eventForm = eventForm }, Cmd.none )
 
         UpdateEvent field value ->
             let
@@ -145,7 +148,7 @@ update msg model =
                         EventLabel ->
                             { form | label = value }
             in
-                ( { model | eventForm = newForm }, Cmd.none )
+            ( { model | eventForm = newForm }, Cmd.none )
 
         UpdateEventOverlay bool ->
             let
@@ -155,7 +158,7 @@ update msg model =
                 newForm =
                     { form | overlay = bool }
             in
-                ( { model | eventForm = newForm }, Cmd.none )
+            ( { model | eventForm = newForm }, Cmd.none )
 
         SaveEvent ->
             let
@@ -168,6 +171,7 @@ update msg model =
                 otherEvents =
                     if existingEvent then
                         deleteItem (model.eventFormOpen - 1) model.events
+
                     else
                         model.events
 
@@ -178,7 +182,7 @@ update msg model =
                 newModel =
                     { model | events = events, eventFormOpen = -1 }
             in
-                ( newModel, updateUrl newModel )
+            ( newModel, updateUrl newModel )
 
         DeleteEvent ->
             let
@@ -188,7 +192,7 @@ update msg model =
                 newModel =
                     { model | events = events, eventFormOpen = -1 }
             in
-                ( newModel, updateUrl newModel )
+            ( newModel, updateUrl newModel )
 
         NewConfig json ->
             let
@@ -200,7 +204,7 @@ update msg model =
                         Err _ ->
                             model
             in
-                ( newModel, updateUrl newModel )
+            ( newModel, updateUrl newModel )
 
         ToggleModal ->
             ( { model | modalOpen = not model.modalOpen }, Cmd.none )
@@ -212,11 +216,12 @@ decodeModel model url =
         dataWithoutHash =
             Maybe.withDefault "" url.fragment
     in
-        if String.isEmpty dataWithoutHash then
-            Ok (mergeModel model (initialModel model.key))
-        else
-            Serializer.deserialize dataWithoutHash
-                |> Result.map (mergeJsonModel model)
+    if String.isEmpty dataWithoutHash then
+        Ok (mergeModel model (initialModel model.key))
+
+    else
+        Serializer.deserialize dataWithoutHash
+            |> Result.map (mergeJsonModel model)
 
 
 updateUrl : Model -> Cmd Msg
@@ -228,13 +233,14 @@ updateUrl model =
         url =
             "#" ++ base64
     in
-        Navigation.pushUrl model.key url
+    Navigation.pushUrl model.key url
 
 
 minLifeExpectancy : Model -> Int
 minLifeExpectancy model =
     if model.onlyAdultYears then
         model.kidUntil
+
     else
         1
 
@@ -246,6 +252,7 @@ deleteItem index list =
             \item ->
                 if i == index then
                     Nothing
+
                 else
                     Just item
         )

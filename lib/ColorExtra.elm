@@ -1,4 +1,4 @@
-module ColorExtra exposing (fromHex, toHex, mixHsl)
+module ColorExtra exposing (fromHex, mixHsl, toHex)
 
 import Color exposing (Color)
 
@@ -24,10 +24,11 @@ fromHex string =
         digit char =
             List.head (String.indexes (String.fromChar char) hexDigits)
     in
-        if String.length string == 7 && String.startsWith "#" string then
-            Maybe.map3 Color.rgb255 (channel 1) (channel 3) (channel 5)
-        else
-            Nothing
+    if String.length string == 7 && String.startsWith "#" string then
+        Maybe.map3 Color.rgb255 (channel 1) (channel 3) (channel 5)
+
+    else
+        Nothing
 
 
 {-| Format a color as a "#rrggbb" string
@@ -46,9 +47,9 @@ toHex color =
                 int =
                     round (value * 255)
             in
-                digit (int // 16) ++ digit (modBy 16 int)
+            digit (int // 16) ++ digit (modBy 16 int)
     in
-        "#" ++ String.concat (List.map channel [ red, green, blue ])
+    "#" ++ String.concat (List.map channel [ red, green, blue ])
 
 
 {-| Mix two colors half-and-half in HSL, going the short way around the hue circle
@@ -67,9 +68,14 @@ mixHsl color1 color2 =
 
         hue =
             middle a.hue b.hue
-                + (if abs (a.hue - b.hue) > 0.5 then 0.5 else 0)
+                + (if abs (a.hue - b.hue) > 0.5 then
+                    0.5
+
+                   else
+                    0
+                  )
     in
-        Color.hsla (hue - toFloat (floor hue))
-            (middle a.saturation b.saturation)
-            (middle a.lightness b.lightness)
-            (middle a.alpha b.alpha)
+    Color.hsla (hue - toFloat (floor hue))
+        (middle a.saturation b.saturation)
+        (middle a.lightness b.lightness)
+        (middle a.alpha b.alpha)

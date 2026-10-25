@@ -1,17 +1,16 @@
-module Lifechart.Serializer
-    exposing
-        ( serialize
-        , serializeJson
-        , deserialize
-        , deserializeJson
-        )
+module Lifechart.Serializer exposing
+    ( deserialize
+    , deserializeJson
+    , serialize
+    , serializeJson
+    )
 
+import Base64
 import Color exposing (Color)
 import ColorExtra
 import Date exposing (Date)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Base64
 import Lifechart.Model exposing (..)
 
 

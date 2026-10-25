@@ -1,10 +1,10 @@
 module Lifechart exposing (main)
 
 import Browser
-import Time
 import Lifechart.Model as Model
 import Lifechart.Update exposing (init, update)
 import Lifechart.View exposing (view)
+import Time
 
 
 main : Program () Model.Model Model.Msg

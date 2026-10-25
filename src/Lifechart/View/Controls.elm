@@ -1,15 +1,15 @@
 module Lifechart.View.Controls exposing (controls, modal)
 
-import Date
 import BasicsExtra exposing (roundToPadded)
-import DateExtra
 import ColorExtra
+import Date
+import DateExtra
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Lifechart.Demo as Demo
 import Lifechart.Model exposing (..)
 import Lifechart.Serializer as Serializer
-import Lifechart.Demo as Demo
 
 
 modal : Model -> Html Msg
@@ -18,38 +18,39 @@ modal model =
         open =
             if model.modalOpen then
                 "block"
+
             else
                 "none"
 
         json =
             Serializer.serializeJson model
     in
-        div
-            [ style "display" open, class "modal in" ]
-            [ div [ class "modal-dialog" ]
-                [ div [ class "modal-content" ]
-                    [ div [ class "modal-body" ]
-                        [ div
-                            [ class "mb-1" ]
-                            [ text "You can copy/paste JSON below to export/import data." ]
-                        , textarea
-                            [ class "form-control"
-                            , rows 20
-                            , onInput NewConfig
-                            ]
-                            [ text json ]
+    div
+        [ style "display" open, class "modal in" ]
+        [ div [ class "modal-dialog" ]
+            [ div [ class "modal-content" ]
+                [ div [ class "modal-body" ]
+                    [ div
+                        [ class "mb-1" ]
+                        [ text "You can copy/paste JSON below to export/import data." ]
+                    , textarea
+                        [ class "form-control"
+                        , rows 20
+                        , onInput NewConfig
                         ]
-                    , div [ class "modal-footer" ]
-                        [ button
-                            [ type_ "button"
-                            , class "btn btn-primary"
-                            , onClick ToggleModal
-                            ]
-                            [ text "Close" ]
+                        [ text json ]
+                    ]
+                , div [ class "modal-footer" ]
+                    [ button
+                        [ type_ "button"
+                        , class "btn btn-primary"
+                        , onClick ToggleModal
                         ]
+                        [ text "Close" ]
                     ]
                 ]
             ]
+        ]
 
 
 controls : Model -> Html Msg
@@ -72,15 +73,15 @@ links model =
         current =
             Serializer.serialize model
     in
-        [ ul [ class "nav justify-content-center mb-2" ]
-            [ li [ class "nav-item" ]
-                [ a [ class "nav-link active", href "#" ] [ text "blank chart" ] ]
-            , li [ class "nav-item" ]
-                [ a [ class "nav-link", href <| "#" ++ Demo.base64 ] [ text "demo chart" ] ]
-            , li [ class "nav-item" ]
-                [ a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ] ]
-            ]
+    [ ul [ class "nav justify-content-center mb-2" ]
+        [ li [ class "nav-item" ]
+            [ a [ class "nav-link active", href "#" ] [ text "blank chart" ] ]
+        , li [ class "nav-item" ]
+            [ a [ class "nav-link", href <| "#" ++ Demo.base64 ] [ text "demo chart" ] ]
+        , li [ class "nav-item" ]
+            [ a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ] ]
         ]
+    ]
 
 
 circled : List (Attribute Msg)
@@ -210,6 +211,7 @@ eventForm model index =
         visibility =
             if model.eventFormOpen == index then
                 ""
+
             else
                 " d-none"
 
@@ -231,6 +233,7 @@ eventForm model index =
                 , value
                     (if isNewEvent then
                         "Add"
+
                      else
                         "Save"
                     )
@@ -240,97 +243,100 @@ eventForm model index =
         actions =
             if isNewEvent then
                 [ submit ]
+
             else
                 [ delete, submit ]
     in
-        li [ class <| "list-group-item" ++ visibility ]
-            [ Html.form [ onSubmit SaveEvent ]
-                [ div [ class "row form-group" ]
-                    [ div [ class "col" ]
-                        [ div [ class "input-group" ]
-                            [ div [ class "input-group-prepend" ]
-                                [ div [ class "input-group-text" ] [ text "From" ]
-                                ]
-                            , input
-                                (List.append dateInputAttributes
-                                    [ class "form-control"
-                                    , value event.from
-                                    , Html.Attributes.max event.to
-                                    , onInput (UpdateEvent EventFrom)
-                                    ]
-                                )
-                                []
-                            ]
-                        ]
-                    , div [ class "col" ]
-                        [ div [ class "input-group" ]
-                            [ div [ class "input-group-prepend" ]
-                                [ div [ class "input-group-text" ] [ text "To" ]
-                                ]
-                            , input
-                                (List.append dateInputAttributes
-                                    [ class "form-control"
-                                    , value event.to
-                                    , Html.Attributes.min event.from
-                                    , onInput (UpdateEvent EventTo)
-                                    ]
-                                )
-                                []
-                            ]
-                        ]
-                    ]
-                , div [ class "row form-group" ]
-                    [ div [ class "col" ]
-                        [ div [ class "input-group" ]
-                            [ div [ class "input-group-prepend" ]
-                                [ div [ class "input-group-text" ] [ text "Label" ]
-                                ]
-                            , input
-                                [ class "form-control"
-                                , placeholder "label"
-                                , type_ "text"
-                                , required True
-                                , value event.label
-                                , onInput (UpdateEvent EventLabel)
-                                ]
-                                []
-                            ]
-                        ]
-                    , div [ class "col" ]
-                        [ label
-                            [ class "form-check-inline"
-                            , style "line-height" "2.5rem"
-                            ]
-                            [ input
-                                [ class "form-check-input"
-                                , type_ "checkbox"
-                                , checked event.overlay
-                                , onCheck UpdateEventOverlay
-                                ]
-                                []
-                            , text " overlay"
+    li [ class <| "list-group-item" ++ visibility ]
+        [ Html.form [ onSubmit SaveEvent ]
+            [ div [ class "row form-group" ]
+                [ div [ class "col" ]
+                    [ div [ class "input-group" ]
+                        [ div [ class "input-group-prepend" ]
+                            [ div [ class "input-group-text" ] [ text "From" ]
                             ]
                         , input
-                            [ class <|
-                                "float-right"
-                                    ++ if event.overlay then
-                                        " d-none"
-                                       else
-                                        ""
-                            , type_ "color"
+                            (List.append dateInputAttributes
+                                [ class "form-control"
+                                , value event.from
+                                , Html.Attributes.max event.to
+                                , onInput (UpdateEvent EventFrom)
+                                ]
+                            )
+                            []
+                        ]
+                    ]
+                , div [ class "col" ]
+                    [ div [ class "input-group" ]
+                        [ div [ class "input-group-prepend" ]
+                            [ div [ class "input-group-text" ] [ text "To" ]
+                            ]
+                        , input
+                            (List.append dateInputAttributes
+                                [ class "form-control"
+                                , value event.to
+                                , Html.Attributes.min event.from
+                                , onInput (UpdateEvent EventTo)
+                                ]
+                            )
+                            []
+                        ]
+                    ]
+                ]
+            , div [ class "row form-group" ]
+                [ div [ class "col" ]
+                    [ div [ class "input-group" ]
+                        [ div [ class "input-group-prepend" ]
+                            [ div [ class "input-group-text" ] [ text "Label" ]
+                            ]
+                        , input
+                            [ class "form-control"
+                            , placeholder "label"
+                            , type_ "text"
                             , required True
-                            , value event.color
-                            , style "height" "2.5rem"
-                            , onInput (UpdateEvent EventColor)
+                            , value event.label
+                            , onInput (UpdateEvent EventLabel)
                             ]
                             []
                         ]
                     ]
-                , div [ class "row form-group" ]
-                    [ div [ class "col-12 text-right" ] actions
+                , div [ class "col" ]
+                    [ label
+                        [ class "form-check-inline"
+                        , style "line-height" "2.5rem"
+                        ]
+                        [ input
+                            [ class "form-check-input"
+                            , type_ "checkbox"
+                            , checked event.overlay
+                            , onCheck UpdateEventOverlay
+                            ]
+                            []
+                        , text " overlay"
+                        ]
+                    , input
+                        [ class <|
+                            "float-right"
+                                ++ (if event.overlay then
+                                        " d-none"
+
+                                    else
+                                        ""
+                                   )
+                        , type_ "color"
+                        , required True
+                        , value event.color
+                        , style "height" "2.5rem"
+                        , onInput (UpdateEvent EventColor)
+                        ]
+                        []
                     ]
                 ]
+            , div [ class "row form-group" ]
+                [ div [ class "col-12 text-right" ] actions
+                ]
             ]
+        ]
 
 
 events : Model -> List (Html Msg)
@@ -373,17 +379,20 @@ events model =
                 , style "padding" <|
                     if event.overlay then
                         "0 0 3px 3px"
+
                     else
                         "0"
                 , style "background-color" <|
                     if event.overlay then
                         "#000000"
+
                     else
                         ColorExtra.toHex event.color
                 ]
                 [ text <|
                     if event.overlay then
                         eventInitial event
+
                     else
                         ""
                 ]
@@ -400,17 +409,18 @@ events model =
                     [ div [ class "text-muted text-center" ] [ text "no events yet" ]
                     ]
                 ]
+
             else
                 List.concat <|
                     List.indexedMap
                         (\index -> \event -> makeEvent event (index + 1))
                         model.events
     in
-        [ div [ class "card mt-4 mb-4" ]
-            [ ul [ class "list-group list-group-flush" ] <|
-                List.concat [ newEvent model, list ]
-            ]
+    [ div [ class "card mt-4 mb-4" ]
+        [ ul [ class "list-group list-group-flush" ] <|
+            List.concat [ newEvent model, list ]
         ]
+    ]
 
 
 metrics : Model -> List (Html Msg)
@@ -426,29 +436,29 @@ metrics model =
                 |> clamp 0 100
                 |> roundToPadded 6
     in
-        [ div [ class "row mt-2" ]
-            [ div [ class "col" ]
-                [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ "% elapsed" ] ]
-                ]
-            , div [ class "col text-right" ]
-                [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ " weeks left" ] ]
-                ]
+    [ div [ class "row mt-2" ]
+        [ div [ class "col" ]
+            [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ "% elapsed" ] ]
             ]
-        , div [ class "row mt-1" ]
-            [ div [ class "col-12" ]
+        , div [ class "col text-right" ]
+            [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ " weeks left" ] ]
+            ]
+        ]
+    , div [ class "row mt-1" ]
+        [ div [ class "col-12" ]
+            [ div
+                [ class "progress"
+                , style "height" "1.7rem"
+                ]
                 [ div
-                    [ class "progress"
-                    , style "height" "1.7rem"
+                    [ class "progress-bar progress-bar-striped progress-bar-animated"
+                    , style "width" (percentage ++ "%")
                     ]
-                    [ div
-                        [ class "progress-bar progress-bar-striped progress-bar-animated"
-                        , style "width" (percentage ++ "%")
-                        ]
-                        []
-                    ]
+                    []
                 ]
             ]
         ]
+    ]
 
 
 footer : List (Html Msg)
@@ -498,4 +508,4 @@ weeksLeft model =
         weeks =
             left / (7 * 24 * 60 * 60 * 1000) |> Basics.max 0
     in
-        roundToPadded 6 weeks
+    roundToPadded 6 weeks
