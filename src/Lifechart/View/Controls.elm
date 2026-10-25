@@ -488,13 +488,22 @@ metrics model =
                 / (DateExtra.toTime (relativeDeathDate model) - DateExtra.toTime (relativeBirthDate model))
                 |> clamp 0 100
                 |> roundToPadded 2
+
+        -- with non-adult years hidden the metrics only count adult years, so
+        -- say so rather than pass them off as the whole life
+        ( elapsedLabel, leftLabel ) =
+            if model.onlyAdultYears then
+                ( "% of adult years elapsed", " adult weeks left" )
+
+            else
+                ( "% elapsed", " weeks left" )
     in
     [ div [ class "row mt-2" ]
         [ div [ class "col-12 col-sm text-center text-sm-left" ]
-            [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ "% elapsed" ] ]
+            [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ elapsedLabel ] ]
             ]
         , div [ class "col-12 col-sm text-center text-sm-right" ]
-            [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ " weeks left" ] ]
+            [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ leftLabel ] ]
             ]
         ]
     , div [ class "row mt-1" ]

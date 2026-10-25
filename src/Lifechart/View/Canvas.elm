@@ -104,8 +104,11 @@ canvas birthDate kidUntil oldFrom lifeExpectancy onlyAdultYears events nowMillis
 draw : Chart {} -> Html Msg
 draw model =
     let
+        ( from, to ) =
+            yearRange model
+
         height =
-            lineHeight * 2 + canvasHeight (toFloat model.lifeExpectancy)
+            lineHeight * 2 + canvasHeight (toFloat (to - from))
 
         grid =
             Collage.group (years model)
@@ -113,17 +116,26 @@ draw model =
                 |> Collage.shiftY (height / 2)
 
         theLegend =
-            legend model
+            (if model.onlyAdultYears then
+                adultLegend model
+
+             else
+                legend model
+            )
                 |> Collage.shiftX (canvasWidth / 2 - legendWidth + lineHeight)
-
-        form =
-            if model.onlyAdultYears then
-                Collage.group [ grid ]
-
-            else
-                Collage.group [ grid, theLegend ]
     in
-    svgBox ( canvasWidth, toFloat (ceiling height) ) form
+    svgBox ( canvasWidth, toFloat (ceiling height) ) (Collage.group [ grid, theLegend ])
+
+
+{-| The years drawn on the chart, both ends included
+-}
+yearRange : Chart {} -> ( Int, Int )
+yearRange model =
+    if model.onlyAdultYears then
+        ( model.kidUntil, maxOldFrom model )
+
+    else
+        ( 0, model.lifeExpectancy )
 
 
 {-| Same as `Collage.Render.svgBox` but with a `viewBox` so that the chart can
@@ -208,6 +220,23 @@ legend model =
     Collage.group [ kid, kidMark, adult, oldMark, old ]
 
 
+{-| With non-adult years hidden, the whole chart is adult years so a single
+label says which ages it covers
+-}
+adultLegend : Chart {} -> Form
+adultLegend model =
+    Text.fromString
+        ("adult years ("
+            ++ String.fromInt model.kidUntil
+            ++ "–"
+            ++ String.fromInt (maxOldFrom model)
+            ++ ")"
+        )
+        |> renderText fontSize
+        |> Collage.rotate (degrees -90)
+        |> Collage.shiftY -11
+
+
 years : Chart {} -> List Form
 years model =
     let
@@ -217,11 +246,7 @@ years model =
                     ((0 - toFloat (i - from + 1)) * (weekWidth + weekBorder * 2) - lineHeight)
 
         ( from, to ) =
-            if model.onlyAdultYears then
-                ( model.kidUntil, maxOldFrom model )
-
-            else
-                ( 0, model.lifeExpectancy )
+            yearRange model
     in
     weekIndexes :: (List.range from to |> List.map makeYear)
 
