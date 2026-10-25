@@ -225,14 +225,14 @@ config model =
 adultYears : Model -> Html Msg
 adultYears model =
     let
-        yearInput value_ msg =
+        yearInput value_ min_ max_ msg =
             input
                 [ class "form-control form-control-lg"
                 , type_ "number"
                 , required True
                 , value value_
-                , Html.Attributes.min "0"
-                , Html.Attributes.max "500"
+                , Html.Attributes.min (String.fromInt min_)
+                , Html.Attributes.max (String.fromInt max_)
                 , onInput msg
                 ]
                 []
@@ -241,10 +241,10 @@ adultYears model =
         [ label [ class "col-5 col-form-label col-form-label-lg" ] [ text "Adult Years" ]
         , div [ class "col-7" ]
             [ div [ class "input-group input-group-lg" ]
-                [ yearInput model.kidUntilString NewKidUntil
+                [ yearInput model.kidUntilString 0 (model.oldFrom - 1) NewKidUntil
                 , div [ class "input-group-append input-group-prepend" ]
                     [ span [ class "input-group-text" ] [ text "to" ] ]
-                , yearInput model.oldFromString NewOldFrom
+                , yearInput model.oldFromString (model.kidUntil + 1) 500 NewOldFrom
                 ]
             ]
         ]
