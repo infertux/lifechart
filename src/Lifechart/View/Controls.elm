@@ -63,6 +63,7 @@ controls model =
             , editOnly (config model)
             , metrics model
             , events model
+            , legend model
             ]
 
 
@@ -201,7 +202,7 @@ newEvent model =
         [ h5 [ class "mb-0" ]
             [ span [] [ text "Events" ]
             , actionLink (ShowEventForm 0)
-                [ class "float-right d-none d-md-inline-block" ]
+                [ class "float-right" ]
                 [ text "Add event" ]
             ]
         ]
@@ -217,7 +218,7 @@ eventForm model index =
 
         visibility =
             if model.eventFormOpen == index then
-                " d-none d-md-block"
+                ""
 
             else
                 " d-none"
@@ -353,11 +354,11 @@ events model =
             [ li [ class "list-group-item" ]
                 [ div
                     [ class "row" ]
-                    [ div [ class "col-12 col-md-3" ]
+                    [ div [ class "col-3" ]
                         [ eventIcon event
                         , span [] [ text event.label ]
                         ]
-                    , div [ class "col-12 col-md-7 text-md-right text-muted" ]
+                    , div [ class "col-7 text-right text-muted" ]
                         [ text <|
                             Date.toIsoString event.from
                                 ++ " to "
@@ -366,43 +367,13 @@ events model =
                                 ++ eventPercentage event
                                 ++ "%)"
                         ]
-                    , div [ class "col-md-2 text-right d-none d-md-block" ]
+                    , div [ class "col-2 text-right" ]
                         [ actionLink (ShowEventForm index) [] [ text "edit" ]
                         ]
                     ]
                 ]
             , eventForm model index
             ]
-
-        eventIcon event =
-            div
-                [ class "float-left"
-                , style "width" "1rem"
-                , style "height" "1rem"
-                , style "line-height" "1rem"
-                , style "font-weight" "bold"
-                , style "color" "#FFFFFF"
-                , style "margin" "3px 0.5rem 0 0"
-                , style "padding" <|
-                    if event.overlay then
-                        "0 0 3px 3px"
-
-                    else
-                        "0"
-                , style "background-color" <|
-                    if event.overlay then
-                        "#000000"
-
-                    else
-                        ColorExtra.toHex event.color
-                ]
-                [ text <|
-                    if event.overlay then
-                        eventInitial event
-
-                    else
-                        ""
-                ]
 
         eventPercentage event =
             100
@@ -423,11 +394,61 @@ events model =
                         (\index -> \event -> makeEvent event (index + 1))
                         model.events
     in
-    [ div [ class "card mt-4 mb-4" ]
+    [ div [ class "card mt-4 mb-4 d-none d-md-flex" ]
         [ ul [ class "list-group list-group-flush" ] <|
             List.concat [ newEvent model, list ]
         ]
     ]
+
+
+{-| Phones get a compact legend of the events instead of the editable list
+-}
+legend : Model -> List (Html Msg)
+legend model =
+    if List.isEmpty model.events then
+        []
+
+    else
+        [ div [ class "d-md-none text-center mt-3" ] <|
+            List.map
+                (\event ->
+                    span [ class "d-inline-block text-nowrap mx-2" ]
+                        [ eventIcon event, text event.label ]
+                )
+                model.events
+        ]
+
+
+eventIcon : Event -> Html Msg
+eventIcon event =
+    div
+        [ class "float-left"
+        , style "width" "1rem"
+        , style "height" "1rem"
+        , style "line-height" "1rem"
+        , style "font-weight" "bold"
+        , style "color" "#FFFFFF"
+        , style "margin" "3px 0.5rem 0 0"
+        , style "padding" <|
+            if event.overlay then
+                "0 0 3px 3px"
+
+            else
+                "0"
+        , style "background-color" <|
+            if event.overlay then
+                "#000000"
+
+            else
+                ColorExtra.toHex event.color
+        ]
+        [ text <|
+            if event.overlay then
+                eventInitial event
+
+            else
+                ""
+        ]
 
 
 metrics : Model -> List (Html Msg)

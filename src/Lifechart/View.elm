@@ -22,7 +22,7 @@ view model =
                         [ Controls.controls model
                         , div [ class "d-none d-md-block" ] Controls.footer
                         ]
-                    , div [ class "col-12 col-md-6 chart" ]
+                    , div [ class "col-12 col-md-6 mt-3 mt-md-0 chart" ]
                         [ if Time.posixToMillis model.now == 0 then
                             h1 [ class "text-center" ] [ text "Loading..." ]
 
