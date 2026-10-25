@@ -20,15 +20,15 @@
   </style>
 </head>
 
-<body class="m-3">
-  <div class="container">
-    <div id="elm-lifechart-app">Loading...</div>
+<body>
+  <!-- Elm takes over the whole <body> -->
+  <div class="m-3">
+    <div class="container">Loading...</div>
   </div>
 
   <script src="lifechart.min.js"></script>
   <script>
-    const elmLifechartDiv = document.querySelector("#elm-lifechart-app");
-    Elm.Lifechart.embed(elmLifechartDiv);
+    Elm.Lifechart.init();
   </script>
 </body>
 </html>

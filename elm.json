@@ -1,0 +1,33 @@
+{
+    "type": "application",
+    "source-directories": [
+        "src",
+        "lib"
+    ],
+    "elm-version": "0.19.3",
+    "dependencies": {
+        "direct": {
+            "avh4/elm-color": "1.0.0",
+            "elm/browser": "1.0.2",
+            "elm/core": "1.0.5",
+            "elm/html": "1.0.1",
+            "elm/json": "1.1.4",
+            "elm/regex": "1.0.0",
+            "elm/time": "1.0.0",
+            "elm/url": "1.0.0",
+            "justinmimbs/date": "4.1.0",
+            "timjs/elm-collage": "3.0.0",
+            "truqu/elm-base64": "2.0.4"
+        },
+        "indirect": {
+            "elm/parser": "1.1.0",
+            "elm/svg": "1.0.1",
+            "elm/virtual-dom": "1.0.5",
+            "elm-community/basics-extra": "4.1.0"
+        }
+    },
+    "test-dependencies": {
+        "direct": {},
+        "indirect": {}
+    }
+}

@@ -2,7 +2,7 @@ image: node:latest
 
 before_script:
   - export PATH=$PWD/node_modules/.bin:$PATH # we don't have perms to install with -g
-  - npm install elm
+  - npm install elm@latest-0.19.3
   - npm install uglify-js
   - elm --version
 

@@ -1,83 +1,21 @@
 module DateExtra exposing (..)
 
 import Date exposing (Date)
-import String
-
-
-unsafeFromString : String -> Date
-unsafeFromString string =
-    case Date.fromString string of
-        Ok date ->
-            date
-
-        Err msg ->
-            Debug.crash <| "unsafeFromString: " ++ string
+import Time
 
 
 fromStringWithFallback : String -> Date -> Date
 fromStringWithFallback string fallback =
-    case Date.fromString string of
-        Ok date ->
-            date
-
-        Err _ ->
-            fallback
+    Date.fromIsoString string |> Result.withDefault fallback
 
 
-toISOString : Date -> String
-toISOString date =
-    let
-        year =
-            Date.year date
-
-        month =
-            Date.month date
-
-        day =
-            Date.day date
-    in
-        String.join "-"
-            [ String.padLeft 4 '0' <| toString year
-            , String.padLeft 2 '0' <| toString (monthToInt month)
-            , String.padLeft 2 '0' <| toString day
-            ]
+{-| Milliseconds since the Unix epoch at midnight UTC on the given date
+-}
+toTime : Date -> Float
+toTime date =
+    toFloat (Date.toRataDie date - Date.toRataDie epoch) * 86400 * 1000
 
 
-monthToInt : Date.Month -> Int
-monthToInt month =
-    case month of
-        Date.Jan ->
-            1
-
-        Date.Feb ->
-            2
-
-        Date.Mar ->
-            3
-
-        Date.Apr ->
-            4
-
-        Date.May ->
-            5
-
-        Date.Jun ->
-            6
-
-        Date.Jul ->
-            7
-
-        Date.Aug ->
-            8
-
-        Date.Sep ->
-            9
-
-        Date.Oct ->
-            10
-
-        Date.Nov ->
-            11
-
-        Date.Dec ->
-            12
+epoch : Date
+epoch =
+    Date.fromCalendarDate 1970 Time.Jan 1
