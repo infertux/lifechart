@@ -17,6 +17,16 @@
     input:focus:invalid {
       outline: none;
     }
+
+    /* Shrink the chart to fit phone screens (shared links are read-only there) */
+    @media (max-width: 767.98px) {
+      .chart svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+      }
+    }
   </style>
 </head>
 
