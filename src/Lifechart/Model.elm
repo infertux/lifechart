@@ -37,6 +37,20 @@ type alias JsonModel =
     }
 
 
+{-| The fields the chart is drawn from
+-}
+type alias Chart a =
+    { a
+        | birthDate : Date
+        , kidUntil : Int
+        , oldFrom : Int
+        , lifeExpectancy : Int
+        , onlyAdultYears : Bool
+        , events : List Event
+        , now : Time.Posix
+    }
+
+
 type alias Event =
     { from : Date
     , to : Date
@@ -152,12 +166,12 @@ today model =
     Date.fromPosix Time.utc model.now
 
 
-nowTime : Model -> Float
+nowTime : Chart a -> Float
 nowTime model =
     toFloat <| Time.posixToMillis model.now
 
 
-relativeBirthDate : Model -> Date
+relativeBirthDate : Chart a -> Date
 relativeBirthDate model =
     if model.onlyAdultYears then
         partialDate model (Date.year model.birthDate + model.kidUntil)
@@ -166,7 +180,7 @@ relativeBirthDate model =
         model.birthDate
 
 
-relativeDeathDate : Model -> Date
+relativeDeathDate : Chart a -> Date
 relativeDeathDate model =
     if model.onlyAdultYears then
         partialDate model (Date.year model.birthDate + maxOldFrom model)
@@ -175,17 +189,17 @@ relativeDeathDate model =
         partialDate model (Date.year model.birthDate + model.lifeExpectancy)
 
 
-maxKidUntil : Model -> Int
+maxKidUntil : Chart a -> Int
 maxKidUntil model =
     Basics.min model.lifeExpectancy model.kidUntil
 
 
-maxOldFrom : Model -> Int
+maxOldFrom : Chart a -> Int
 maxOldFrom model =
     Basics.min model.lifeExpectancy model.oldFrom
 
 
-partialDate : Model -> Int -> Date
+partialDate : Chart a -> Int -> Date
 partialDate model year =
     Date.fromCalendarDate year (Date.month model.birthDate) (Date.day model.birthDate)
 
