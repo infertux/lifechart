@@ -457,8 +457,10 @@ metrics model =
                 [ class "progress"
                 , style "height" "1.7rem"
                 ]
-                [ div
-                    [ class "progress-bar progress-bar-striped progress-bar-animated"
+                [ -- not progress-bar-animated: moving stripes repaint the whole
+                  -- chart on every frame, which keeps the CPU busy
+                  div
+                    [ class "progress-bar progress-bar-striped"
                     , style "width" (percentage ++ "%")
                     ]
                     []
