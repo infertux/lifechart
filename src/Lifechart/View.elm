@@ -18,8 +18,11 @@ view model =
             [ div [ class "container" ]
                 [ Controls.modal model
                 , div [ class "row" ]
-                    [ div [ class "col-6" ] [ Controls.controls model ]
-                    , div [ class "col-6" ]
+                    [ div [ class "col-12 col-md-6" ]
+                        [ Controls.controls model
+                        , div [ class "d-none d-md-block" ] Controls.footer
+                        ]
+                    , div [ class "col-12 col-md-6 mt-3 mt-md-0 chart" ]
                         [ if Time.posixToMillis model.now == 0 then
                             h1 [ class "text-center" ] [ text "Loading..." ]
 
@@ -33,6 +36,9 @@ view model =
                                 model.events
                                 (chartTime model)
                         ]
+
+                    -- on phones the chart comes before the footer
+                    , div [ class "col-12 d-md-none mt-3" ] Controls.footer
                     ]
                 ]
             ]

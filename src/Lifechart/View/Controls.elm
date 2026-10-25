@@ -1,4 +1,4 @@
-module Lifechart.View.Controls exposing (controls, modal)
+module Lifechart.View.Controls exposing (controls, footer, modal)
 
 import BasicsExtra exposing (roundToPadded)
 import ColorExtra
@@ -60,11 +60,19 @@ controls model =
             [ [ h1 [ class "text-center mb-2" ] [ text "Spend your time wisely." ] ]
             , [ div [ class "text-center text-muted mb-1" ] [ text "This will either inspire you or terrify you - hopefully the former." ] ]
             , links model
-            , config model
+            , editOnly (config model)
             , metrics model
             , events model
-            , footer
+            , legend model
             ]
+
+
+{-| Editing is only supported on bigger screens: phones get a read-only view of
+the chart so that shared links still look fine
+-}
+editOnly : List (Html Msg) -> List (Html Msg)
+editOnly content =
+    [ div [ class "d-none d-md-block" ] content ]
 
 
 links : Model -> List (Html Msg)
@@ -367,36 +375,6 @@ events model =
             , eventForm model index
             ]
 
-        eventIcon event =
-            div
-                [ class "float-left"
-                , style "width" "1rem"
-                , style "height" "1rem"
-                , style "line-height" "1rem"
-                , style "font-weight" "bold"
-                , style "color" "#FFFFFF"
-                , style "margin" "3px 0.5rem 0 0"
-                , style "padding" <|
-                    if event.overlay then
-                        "0 0 3px 3px"
-
-                    else
-                        "0"
-                , style "background-color" <|
-                    if event.overlay then
-                        "#000000"
-
-                    else
-                        ColorExtra.toHex event.color
-                ]
-                [ text <|
-                    if event.overlay then
-                        eventInitial event
-
-                    else
-                        ""
-                ]
-
         eventPercentage event =
             100
                 * (DateExtra.toTime event.to - DateExtra.toTime event.from)
@@ -416,11 +394,61 @@ events model =
                         (\index -> \event -> makeEvent event (index + 1))
                         model.events
     in
-    [ div [ class "card mt-4 mb-4" ]
+    [ div [ class "card mt-4 mb-4 d-none d-md-flex" ]
         [ ul [ class "list-group list-group-flush" ] <|
             List.concat [ newEvent model, list ]
         ]
     ]
+
+
+{-| Phones get a compact legend of the events instead of the editable list
+-}
+legend : Model -> List (Html Msg)
+legend model =
+    if List.isEmpty model.events then
+        []
+
+    else
+        [ div [ class "d-md-none text-center mt-3" ] <|
+            List.map
+                (\event ->
+                    span [ class "d-inline-block text-nowrap mx-2" ]
+                        [ eventIcon event, text event.label ]
+                )
+                model.events
+        ]
+
+
+eventIcon : Event -> Html Msg
+eventIcon event =
+    div
+        [ class "float-left"
+        , style "width" "1rem"
+        , style "height" "1rem"
+        , style "line-height" "1rem"
+        , style "font-weight" "bold"
+        , style "color" "#FFFFFF"
+        , style "margin" "3px 0.5rem 0 0"
+        , style "padding" <|
+            if event.overlay then
+                "0 0 3px 3px"
+
+            else
+                "0"
+        , style "background-color" <|
+            if event.overlay then
+                "#000000"
+
+            else
+                ColorExtra.toHex event.color
+        ]
+        [ text <|
+            if event.overlay then
+                eventInitial event
+
+            else
+                ""
+        ]
 
 
 metrics : Model -> List (Html Msg)
@@ -434,13 +462,13 @@ metrics model =
                 * (nowTime model - DateExtra.toTime (relativeBirthDate model))
                 / (DateExtra.toTime (relativeDeathDate model) - DateExtra.toTime (relativeBirthDate model))
                 |> clamp 0 100
-                |> roundToPadded 6
+                |> roundToPadded 2
     in
     [ div [ class "row mt-2" ]
-        [ div [ class "col" ]
+        [ div [ class "col-12 col-sm text-center text-sm-left" ]
             [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ "% elapsed" ] ]
             ]
-        , div [ class "col text-right" ]
+        , div [ class "col-12 col-sm text-center text-sm-right" ]
             [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ " weeks left" ] ]
             ]
         ]
@@ -450,8 +478,10 @@ metrics model =
                 [ class "progress"
                 , style "height" "1.7rem"
                 ]
-                [ div
-                    [ class "progress-bar progress-bar-striped progress-bar-animated"
+                [ -- not progress-bar-animated: moving stripes repaint the whole
+                  -- chart on every frame, which keeps the CPU busy
+                  div
+                    [ class "progress-bar progress-bar-striped"
                     , style "width" (percentage ++ "%")
                     ]
                     []
@@ -476,8 +506,10 @@ footer =
                 , a [ href "http://waitbutwhy.com/2014/05/life-weeks.html", target "_blank" ] [ text "Terrified?" ]
                 , text " - "
                 , a [ href "https://github.com/infertux/lifechart", target "_blank" ] [ text "Source code" ]
-                , text " - "
-                , actionLink ToggleModal [] [ text "Export raw data" ]
+                , span [ class "d-none d-md-inline" ]
+                    [ text " - "
+                    , actionLink ToggleModal [] [ text "Export raw data" ]
+                    ]
                 ]
             , div [ class "d-none" ]
                 [ strong [] [ text "Reminder: " ]
@@ -499,6 +531,9 @@ dateInputAttributes =
     ]
 
 
+{-| Six decimals because a millionth of a week is 0.6 seconds, so the last digit
+changes on every tick to show that the clock is ticking
+-}
 weeksLeft : Model -> String
 weeksLeft model =
     let

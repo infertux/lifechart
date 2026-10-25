@@ -8,6 +8,7 @@ import ColorExtra
 import Date
 import DateExtra
 import Html exposing (Html)
+import Html.Attributes exposing (attribute)
 import Lifechart.Model as Model exposing (..)
 import Time
 
@@ -122,7 +123,26 @@ draw model =
             else
                 Collage.group [ grid, theLegend ]
     in
-    Collage.Render.svgBox ( canvasWidth, toFloat (ceiling height) ) form
+    svgBox ( canvasWidth, toFloat (ceiling height) ) form
+
+
+{-| Same as `Collage.Render.svgBox` but with a `viewBox` so that the chart can
+be scaled down to fit narrow screens
+-}
+svgBox : ( Float, Float ) -> Form -> Html Msg
+svgBox ( width, height ) form =
+    let
+        ( w, h ) =
+            ( String.fromFloat width, String.fromFloat height )
+    in
+    form
+        |> Collage.shift ( width / 2, -height / 2 )
+        |> Collage.Render.svgExplicit
+            [ attribute "width" w
+            , attribute "height" h
+            , attribute "viewBox" ("0 0 " ++ w ++ " " ++ h)
+            , attribute "version" "1.1"
+            ]
 
 
 legend : Chart {} -> Form
