@@ -441,7 +441,7 @@ metrics model =
                 * (nowTime model - DateExtra.toTime (relativeBirthDate model))
                 / (DateExtra.toTime (relativeDeathDate model) - DateExtra.toTime (relativeBirthDate model))
                 |> clamp 0 100
-                |> roundToPadded 6
+                |> roundToPadded 2
     in
     [ div [ class "row mt-2" ]
         [ div [ class "col-12 col-sm text-center text-sm-left" ]
@@ -508,6 +508,9 @@ dateInputAttributes =
     ]
 
 
+{-| Six decimals because a millionth of a week is 0.6 seconds, so the last digit
+changes on every tick to show that the clock is ticking
+-}
 weeksLeft : Model -> String
 weeksLeft model =
     let
