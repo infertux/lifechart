@@ -3,6 +3,7 @@ module Lifechart.View exposing (view)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Lazy exposing (lazy7)
 import Lifechart.Model exposing (..)
 import Lifechart.View.Canvas as Canvas
 import Lifechart.View.Controls as Controls
@@ -23,10 +24,30 @@ view model =
                             h1 [ class "text-center" ] [ text "Loading..." ]
 
                           else
-                            Canvas.canvas model
+                            lazy7 Canvas.canvas
+                                model.birthDate
+                                model.kidUntil
+                                model.oldFrom
+                                model.lifeExpectancy
+                                model.onlyAdultYears
+                                model.events
+                                (chartTime model)
                         ]
                     ]
                 ]
             ]
         ]
     }
+
+
+{-| The current time rounded down to the hour. Week squares only change at
+midnight UTC and the current week moves at noon UTC, so this redraws the chart
+once an hour instead of on every clock tick.
+-}
+chartTime : Model -> Int
+chartTime model =
+    let
+        hour =
+            60 * 60 * 1000
+    in
+    (Time.posixToMillis model.now // hour) * hour
