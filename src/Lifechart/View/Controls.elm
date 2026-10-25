@@ -111,8 +111,8 @@ links model =
             [ a [ navLink (current == Serializer.serialize (initialModel model.key)), href "#" ] [ text "blank chart" ] ]
         , li [ class "nav-item" ]
             [ a [ navLink (isDemo model), href <| "#" ++ Demo.base64 ] [ text "demo chart" ] ]
-        , li [ class "nav-item" ]
-            [ a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ] ]
+        , li [ class "nav-item d-none d-md-block" ]
+            [ span [ class "nav-link text-muted" ] [ text "press Ctrl+D or ⌘D to bookmark your chart" ] ]
         ]
     ]
 
