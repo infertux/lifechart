@@ -183,6 +183,7 @@ config model =
                 []
             ]
         ]
+    , adultYears model
     , div [ class "row form-group" ]
         [ label [ class "col-5 col-form-label col-form-label-lg" ]
             [ text "Non-Adult Years "
@@ -219,6 +220,34 @@ config model =
             ]
         ]
     ]
+
+
+adultYears : Model -> Html Msg
+adultYears model =
+    let
+        yearInput value_ msg =
+            input
+                [ class "form-control form-control-lg"
+                , type_ "number"
+                , required True
+                , value (String.fromInt value_)
+                , Html.Attributes.min "0"
+                , Html.Attributes.max "500"
+                , onInput msg
+                ]
+                []
+    in
+    div [ class "row form-group" ]
+        [ label [ class "col-5 col-form-label col-form-label-lg" ] [ text "Adult Years" ]
+        , div [ class "col-7" ]
+            [ div [ class "input-group input-group-lg" ]
+                [ yearInput model.kidUntil NewKidUntil
+                , div [ class "input-group-append input-group-prepend" ]
+                    [ span [ class "input-group-text" ] [ text "to" ] ]
+                , yearInput model.oldFrom NewOldFrom
+                ]
+            ]
+        ]
 
 
 newEvent : Model -> List (Html Msg)
