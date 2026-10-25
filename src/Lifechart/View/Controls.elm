@@ -1,4 +1,4 @@
-module Lifechart.View.Controls exposing (controls, modal)
+module Lifechart.View.Controls exposing (controls, footer, modal)
 
 import BasicsExtra exposing (roundToPadded)
 import ColorExtra
@@ -60,11 +60,18 @@ controls model =
             [ [ h1 [ class "text-center mb-2" ] [ text "Spend your time wisely." ] ]
             , [ div [ class "text-center text-muted mb-1" ] [ text "This will either inspire you or terrify you - hopefully the former." ] ]
             , links model
-            , config model
+            , editOnly (config model)
             , metrics model
             , events model
-            , footer
             ]
+
+
+{-| Editing is only supported on bigger screens: phones get a read-only view of
+the chart so that shared links still look fine
+-}
+editOnly : List (Html Msg) -> List (Html Msg)
+editOnly content =
+    [ div [ class "d-none d-md-block" ] content ]
 
 
 links : Model -> List (Html Msg)
@@ -194,7 +201,7 @@ newEvent model =
         [ h5 [ class "mb-0" ]
             [ span [] [ text "Events" ]
             , actionLink (ShowEventForm 0)
-                [ class "float-right" ]
+                [ class "float-right d-none d-md-inline-block" ]
                 [ text "Add event" ]
             ]
         ]
@@ -210,7 +217,7 @@ eventForm model index =
 
         visibility =
             if model.eventFormOpen == index then
-                ""
+                " d-none d-md-block"
 
             else
                 " d-none"
@@ -346,11 +353,11 @@ events model =
             [ li [ class "list-group-item" ]
                 [ div
                     [ class "row" ]
-                    [ div [ class "col-3" ]
+                    [ div [ class "col-12 col-md-3" ]
                         [ eventIcon event
                         , span [] [ text event.label ]
                         ]
-                    , div [ class "col-7 text-right text-muted" ]
+                    , div [ class "col-12 col-md-7 text-md-right text-muted" ]
                         [ text <|
                             Date.toIsoString event.from
                                 ++ " to "
@@ -359,7 +366,7 @@ events model =
                                 ++ eventPercentage event
                                 ++ "%)"
                         ]
-                    , div [ class "col-2 text-right" ]
+                    , div [ class "col-md-2 text-right d-none d-md-block" ]
                         [ actionLink (ShowEventForm index) [] [ text "edit" ]
                         ]
                     ]
@@ -437,10 +444,10 @@ metrics model =
                 |> roundToPadded 6
     in
     [ div [ class "row mt-2" ]
-        [ div [ class "col" ]
+        [ div [ class "col-12 col-sm" ]
             [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ "% elapsed" ] ]
             ]
-        , div [ class "col text-right" ]
+        , div [ class "col-12 col-sm text-sm-right" ]
             [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ " weeks left" ] ]
             ]
         ]
@@ -476,8 +483,10 @@ footer =
                 , a [ href "http://waitbutwhy.com/2014/05/life-weeks.html", target "_blank" ] [ text "Terrified?" ]
                 , text " - "
                 , a [ href "https://github.com/infertux/lifechart", target "_blank" ] [ text "Source code" ]
-                , text " - "
-                , actionLink ToggleModal [] [ text "Export raw data" ]
+                , span [ class "d-none d-md-inline" ]
+                    [ text " - "
+                    , actionLink ToggleModal [] [ text "Export raw data" ]
+                    ]
                 ]
             , div [ class "d-none" ]
                 [ strong [] [ text "Reminder: " ]
