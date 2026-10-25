@@ -27,6 +27,18 @@ fontSize =
     12
 
 
+{-| SVG centers text on its x-height whereas the old canvas renderer centered
+it on the em box, so nudge it down a bit to keep the text aligned with the grid
+-}
+renderText : Int -> Text -> Form
+renderText size text =
+    Collage.group
+        [ Text.size size text
+            |> Collage.rendered
+            |> Collage.shiftY (-0.25 * toFloat size)
+        ]
+
+
 lineHeight : number
 lineHeight =
     16
@@ -102,8 +114,7 @@ legend model =
     let
         makeText string =
             Text.fromString string
-                |> Text.size fontSize
-                |> Collage.rendered
+                |> renderText fontSize
                 |> Collage.rotate (degrees -90)
 
         ( textOffset, markOffset ) =
@@ -184,8 +195,7 @@ weekIndexes =
     let
         makeIndex i =
             Text.fromString (String.fromInt i)
-                |> Text.size fontSize
-                |> Collage.rendered
+                |> renderText fontSize
                 |> Collage.shiftX (toFloat i * (weekWidth + weekBorder * 2))
     in
     List.range 1 52
@@ -206,8 +216,7 @@ year model index =
 
         label =
             Text.fromString (String.fromInt calendarYear ++ " / " ++ paddedIndex)
-                |> Text.size fontSize
-                |> Collage.rendered
+                |> renderText fontSize
                 |> Collage.shift ( 32, 2 )
 
         makeWeek i =
@@ -241,10 +250,9 @@ week model yearIndex weekIndex =
                 (eventInitial event
                     |> Text.fromString
                     |> Text.typeface Text.Monospace
-                    |> Text.size weekWidth
                     |> Text.weight Text.Bold
                     |> Text.color Color.white
-                    |> Collage.rendered
+                    |> renderText weekWidth
                     |> Collage.shiftY 1
                 )
 
