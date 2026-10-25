@@ -1,11 +1,13 @@
 module Lifechart.Model exposing (..)
 
-import Date exposing (Date)
+import Browser
+import Browser.Navigation as Navigation
 import Color exposing (Color)
-import Color.Convert
-import Time exposing (Time)
-import Navigation
+import ColorExtra
+import Date exposing (Date)
 import DateExtra
+import Time
+import Url exposing (Url)
 
 
 type alias Model =
@@ -20,7 +22,8 @@ type alias Model =
     , eventFormOpen : Int
     , eventForm : EventForm
     , modalOpen : Bool
-    , now : Time
+    , now : Time.Posix
+    , key : Navigation.Key
     }
 
 
@@ -52,9 +55,9 @@ type alias EventForm =
     }
 
 
-initialModel : Model
-initialModel =
-    { birthDate = DateExtra.unsafeFromString "1988-07-24"
+initialModel : Navigation.Key -> Model
+initialModel key =
+    { birthDate = Date.fromCalendarDate 1988 Time.Jul 24
     , birthDateString = "1988-07-24"
     , kidUntil = 18
     , oldFrom = 70
@@ -65,19 +68,20 @@ initialModel =
     , eventFormOpen = -1
     , eventForm = EventForm "" "" "" "" False
     , modalOpen = False
-    , now = 0
+    , now = Time.millisToPosix 0
+    , key = key
     }
 
 
-mergeJsonModel : JsonModel -> Model
-mergeJsonModel jsonModel =
-    { initialModel
+mergeJsonModel : Model -> JsonModel -> Model
+mergeJsonModel model jsonModel =
+    { model
         | birthDate = jsonModel.birthDate
-        , birthDateString = DateExtra.toISOString jsonModel.birthDate
+        , birthDateString = Date.toIsoString jsonModel.birthDate
         , kidUntil = jsonModel.kidUntil
         , oldFrom = jsonModel.oldFrom
         , lifeExpectancy = jsonModel.lifeExpectancy
-        , lifeExpectancyString = toString jsonModel.lifeExpectancy
+        , lifeExpectancyString = String.fromInt jsonModel.lifeExpectancy
         , onlyAdultYears = jsonModel.onlyAdultYears
         , events = jsonModel.events
     }
@@ -95,23 +99,22 @@ mergeModel baseModel newModel =
 
 initialEventForm : Model -> EventForm
 initialEventForm model =
-    { from = DateExtra.toISOString <| Date.fromTime model.now
-    , to = DateExtra.toISOString <| Date.fromTime model.now
+    { from = Date.toIsoString <| today model
+    , to = Date.toIsoString <| today model
     , label = ""
     , overlay = False
-    , color = Color.Convert.colorToHex fallbackColor
+    , color = ColorExtra.toHex fallbackColor
     }
 
 
 createEvent : EventForm -> Event
 createEvent form =
-    { from = DateExtra.fromStringWithFallback form.from (Date.fromTime 0)
-    , to = DateExtra.fromStringWithFallback form.to (Date.fromTime 0)
+    { from = DateExtra.fromStringWithFallback form.from DateExtra.epoch
+    , to = DateExtra.fromStringWithFallback form.to DateExtra.epoch
     , label = form.label
     , overlay = form.overlay
     , color =
-        Color.Convert.hexToColor form.color
-            |> Result.toMaybe
+        ColorExtra.fromHex form.color
             |> Maybe.withDefault fallbackColor
     }
 
@@ -129,8 +132,9 @@ type NewEventField
 
 
 type Msg
-    = Tick Time
-    | NewUrl Navigation.Location
+    = Tick Time.Posix
+    | NewUrl Url
+    | UrlRequest Browser.UrlRequest
     | NewBirthDate String
     | NewLifeExpectancy String
     | OnlyAdultYears Bool
@@ -141,6 +145,16 @@ type Msg
     | DeleteEvent
     | NewConfig String
     | ToggleModal
+
+
+today : Model -> Date
+today model =
+    Date.fromPosix Time.utc model.now
+
+
+nowTime : Model -> Float
+nowTime model =
+    toFloat <| Time.posixToMillis model.now
 
 
 relativeBirthDate : Model -> Date
@@ -171,19 +185,9 @@ maxOldFrom model =
 
 partialDate : Model -> Int -> Date
 partialDate model year =
-    DateExtra.unsafeFromString <|
-        String.join "-"
-            [ toString year
-            , toString <| DateExtra.monthToInt <| Date.month model.birthDate
-            , toString <| Date.day model.birthDate
-            ]
+    Date.fromCalendarDate year (Date.month model.birthDate) (Date.day model.birthDate)
 
 
 eventInitial : Event -> String
 eventInitial event =
     event.label |> String.left 1 |> String.toUpper
-
-
-(=>) : a -> b -> ( a, b )
-(=>) =
-    (,)

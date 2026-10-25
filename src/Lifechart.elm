@@ -1,22 +1,25 @@
 module Lifechart exposing (main)
 
-import Navigation
+import Browser
 import Time
 import Lifechart.Model as Model
 import Lifechart.Update exposing (init, update)
 import Lifechart.View exposing (view)
 
 
-main : Program Never Model.Model Model.Msg
+main : Program () Model.Model Model.Msg
 main =
-    Navigation.program Model.NewUrl
+    Browser.application
         { init = init
         , update = update
         , view = view
         , subscriptions = subscriptions
+        , onUrlRequest = Model.UrlRequest
+        , onUrlChange = Model.NewUrl
         }
 
 
 subscriptions : Model.Model -> Sub Model.Msg
 subscriptions model =
-    Time.every (Time.second * 10) Model.Tick
+    -- every 10 seconds (Time.every takes milliseconds)
+    Time.every (10 * 1000) Model.Tick

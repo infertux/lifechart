@@ -1,15 +1,30 @@
 module Lifechart.View.Canvas exposing (canvas)
 
-import Html exposing (..)
-import Collage exposing (Form, LineStyle)
-import Element exposing (Element)
-import Text exposing (Text)
+import Html exposing (Html)
+import Collage exposing (Collage, LineStyle)
+import Collage.Render
+import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
-import Color.Interpolate
-import Date exposing (Date)
-import Time exposing (Time)
+import ColorExtra
+import Date
 import DateExtra
+import Time
 import Lifechart.Model as Model exposing (..)
+
+
+type alias Form =
+    Collage Msg
+
+
+{-| Milliseconds since the Unix epoch
+-}
+type alias Time =
+    Float
+
+
+fontSize : Int
+fontSize =
+    12
 
 
 lineHeight : number
@@ -17,7 +32,7 @@ lineHeight =
     16
 
 
-canvasHeight : number -> Float
+canvasHeight : Float -> Float
 canvasHeight lifeExpectancy =
     lifeExpectancy * (weekWidth + weekBorder * 2)
 
@@ -61,16 +76,16 @@ canvas : Model -> Html Msg
 canvas model =
     let
         height =
-            lineHeight * 2 + canvasHeight model.lifeExpectancy
+            lineHeight * 2 + canvasHeight (toFloat model.lifeExpectancy)
 
         grid =
             Collage.group (years model)
-                |> Collage.moveX (-canvasWidth / 2)
-                |> Collage.moveY (height / 2)
+                |> Collage.shiftX (-canvasWidth / 2)
+                |> Collage.shiftY (height / 2)
 
         theLegend =
             legend model
-                |> Collage.moveX (canvasWidth / 2 - legendWidth + lineHeight)
+                |> Collage.shiftX (canvasWidth / 2 - legendWidth + lineHeight)
 
         form =
             if model.onlyAdultYears then
@@ -78,15 +93,16 @@ canvas model =
             else
                 Collage.group [ grid, theLegend ]
     in
-        Collage.collage canvasWidth (ceiling height) [ form ] |> Element.toHtml
+        Collage.Render.svgBox ( canvasWidth, toFloat (ceiling height) ) form
 
 
 legend : Model -> Form
 legend model =
     let
-        makeText text =
-            Text.fromString text
-                |> Collage.text
+        makeText string =
+            Text.fromString string
+                |> Text.size fontSize
+                |> Collage.rendered
                 |> Collage.rotate (degrees -90)
 
         ( textOffset, markOffset ) =
@@ -98,37 +114,37 @@ legend model =
             , toFloat model.lifeExpectancy
             )
 
-        maxKidUntil =
+        kidUntilMax =
             Model.maxKidUntil model |> toFloat
 
         kid =
             makeText "kid"
-                |> Collage.moveY
-                    (canvasHeight ((lifeExpectancy - maxKidUntil) / 2) - textOffset)
+                |> Collage.shiftY
+                    (canvasHeight ((lifeExpectancy - kidUntilMax) / 2) - textOffset)
 
         kidMark =
-            Collage.rect 10 1
-                |> Collage.filled Color.black
-                |> Collage.moveX -2
-                |> Collage.moveY
+            Collage.rectangle 10 1
+                |> Collage.filled (Collage.uniform Color.black)
+                |> Collage.shiftX -2
+                |> Collage.shiftY
                     (canvasHeight (lifeExpectancy / 2 - kidUntil) - markOffset)
 
-        maxOldFrom =
+        oldFromMax =
             Model.maxOldFrom model |> toFloat
 
         adult =
-            if maxOldFrom - kidUntil < 8 then
+            if oldFromMax - kidUntil < 8 then
                 makeText ""
             else
                 makeText "adult years"
-                    |> Collage.moveY
-                        (canvasHeight (lifeExpectancy / 2 - (kidUntil + maxOldFrom) / 2) - textOffset)
+                    |> Collage.shiftY
+                        (canvasHeight (lifeExpectancy / 2 - (kidUntil + oldFromMax) / 2) - textOffset)
 
         oldMark =
-            Collage.rect 10 1
-                |> Collage.filled Color.black
-                |> Collage.moveX -2
-                |> Collage.moveY
+            Collage.rectangle 10 1
+                |> Collage.filled (Collage.uniform Color.black)
+                |> Collage.shiftX -2
+                |> Collage.shiftY
                     -(canvasHeight (oldFrom - lifeExpectancy / 2) + markOffset)
 
         old =
@@ -136,7 +152,7 @@ legend model =
                 makeText ""
             else
                 makeText "old"
-                    |> Collage.moveY
+                    |> Collage.shiftY
                         -(canvasHeight ((lifeExpectancy + oldFrom) / 2 - lifeExpectancy / 2) + textOffset)
     in
         Collage.group [ kid, kidMark, adult, oldMark, old ]
@@ -147,7 +163,7 @@ years model =
     let
         makeYear i =
             Collage.group (year model i)
-                |> Collage.moveY
+                |> Collage.shiftY
                     ((0 - toFloat (i - from + 1)) * (weekWidth + weekBorder * 2) - lineHeight)
 
         ( from, to ) =
@@ -163,47 +179,49 @@ weekIndexes : Form
 weekIndexes =
     let
         makeIndex i =
-            Text.fromString (toString i)
-                |> Collage.text
-                |> Collage.moveX (toFloat i * (weekWidth + weekBorder * 2))
+            Text.fromString (String.fromInt i)
+                |> Text.size fontSize
+                |> Collage.rendered
+                |> Collage.shiftX (toFloat i * (weekWidth + weekBorder * 2))
     in
         List.range 1 52
-            |> List.filter (\i -> i % 2 /= 0)
+            |> List.filter (\i -> modBy 2 i /= 0)
             |> List.map makeIndex
             |> Collage.group
-            |> Collage.move ( indexWidth, -10 )
+            |> Collage.shift ( indexWidth, -10 )
 
 
 year : Model -> Int -> List Form
 year model index =
     let
-        year =
+        calendarYear =
             Date.year model.birthDate + index
 
         paddedIndex =
-            String.padLeft 2 '0' (toString index)
+            String.padLeft 2 '0' (String.fromInt index)
 
         label =
-            Text.fromString (toString year ++ " / " ++ paddedIndex)
-                |> Collage.text
-                |> Collage.move ( 32, 2 )
+            Text.fromString (String.fromInt calendarYear ++ " / " ++ paddedIndex)
+                |> Text.size fontSize
+                |> Collage.rendered
+                |> Collage.shift ( 32, 2 )
 
         makeWeek i =
             week model index i
-                |> Collage.moveX
+                |> Collage.shiftX
                     (toFloat i * (weekWidth + weekBorder * 2) + indexWidth)
     in
         label :: (List.range 1 52 |> List.map makeWeek)
 
 
 week : Model -> Int -> Int -> Form
-week model year week =
+week model yearIndex weekIndex =
     let
         time =
-            yearWeekToTime model ( year, week )
+            yearWeekToTime model ( yearIndex, weekIndex )
 
         match event =
-            (Date.toTime event.from <= time) && (Date.toTime event.to >= time)
+            (DateExtra.toTime event.from <= time) && (DateExtra.toTime event.to >= time)
 
         ( overlays, events ) =
             List.filter match model.events |> List.partition .overlay
@@ -218,30 +236,30 @@ week model year week =
             Just
                 (eventInitial event
                     |> Text.fromString
-                    |> Text.monospace
-                    |> Text.height weekWidth
-                    |> Text.bold
+                    |> Text.typeface Text.Monospace
+                    |> Text.size weekWidth
+                    |> Text.weight Text.Bold
                     |> Text.color Color.white
-                    |> Collage.text
-                    |> Collage.moveY 1
+                    |> Collage.rendered
+                    |> Collage.shiftY 1
                 )
 
         square color =
-            Collage.square weekWidth |> Collage.filled color
+            Collage.square weekWidth |> Collage.filled (Collage.uniform color)
 
         filled color =
             case initial of
                 Nothing ->
                     square color
 
-                Just initial ->
-                    Collage.group [ square color, initial ]
+                Just initialForm ->
+                    Collage.group [ initialForm, square color ]
 
         outlined =
             Collage.square (weekWidth - weekBorder) |> Collage.outlined lineStyle
     in
         if isCurrentWeek model time then
-            filled Color.black |> Collage.alpha 0.5
+            filled Color.black |> Collage.opacity 0.5
         else
             case weekColor of
                 Nothing ->
@@ -267,29 +285,22 @@ mixColors colors =
         firstColor :: otherColors ->
             Just <|
                 List.foldl
-                    (\oldColor ->
-                        \newColor ->
-                            Color.Interpolate.interpolate
-                                Color.Interpolate.HSL
-                                oldColor
-                                newColor
-                                0.5
-                    )
+                    (\oldColor -> \newColor -> ColorExtra.mixHsl oldColor newColor)
                     firstColor
                     otherColors
 
 
 outOfBounds : Model -> Time -> Bool
 outOfBounds model time =
-    (time < Date.toTime (relativeBirthDate model))
-        || (time > Date.toTime (relativeDeathDate model))
+    (time < DateExtra.toTime (relativeBirthDate model))
+        || (time > DateExtra.toTime (relativeDeathDate model))
 
 
 isCurrentWeek : Model -> Time -> Bool
 isCurrentWeek model time =
     let
         now =
-            model.now
+            nowTime model
 
         halfWeek =
             oneWeek / 2
@@ -299,7 +310,7 @@ isCurrentWeek model time =
 
 isPast : Model -> Time -> Bool
 isPast model time =
-    time < model.now
+    time < nowTime model
 
 
 isKid : Model -> Time -> Bool
@@ -311,7 +322,7 @@ isKid model time =
         if model.onlyAdultYears then
             False
         else
-            Date.toTime kidDate >= time
+            DateExtra.toTime kidDate >= time
 
 
 isOld : Model -> Time -> Bool
@@ -323,51 +334,27 @@ isOld model time =
         if model.onlyAdultYears then
             False
         else
-            Date.toTime oldDate <= time
+            DateExtra.toTime oldDate <= time
 
 
 yearWeekToTime : Model -> ( Int, Int ) -> Time
-yearWeekToTime model ( year, week ) =
+yearWeekToTime model ( yearIndex, weekIndex ) =
     let
         currentYear =
-            Date.year model.birthDate + year
+            Date.year model.birthDate + yearIndex
 
         beginningOfYear =
-            DateExtra.unsafeFromString <| toString currentYear ++ "-01-01"
+            Date.fromCalendarDate currentYear Time.Jan 1
 
         firstMondayOffset =
-            case Date.dayOfWeek beginningOfYear of
-                Date.Mon ->
-                    0
-
-                Date.Tue ->
-                    1
-
-                Date.Wed ->
-                    2
-
-                Date.Thu ->
-                    3
-
-                Date.Fri ->
-                    4
-
-                Date.Sat ->
-                    5
-
-                Date.Sun ->
-                    6
+            Date.weekdayNumber beginningOfYear - 1
 
         yearOffset =
-            toFloat (week - 1) * oneWeek + toFloat firstMondayOffset * oneDay
+            toFloat (weekIndex - 1) * oneWeek + toFloat firstMondayOffset * oneDay
     in
-        Date.toTime beginningOfYear + yearOffset
+        DateExtra.toTime beginningOfYear + yearOffset
 
 
 lineStyle : LineStyle
 lineStyle =
-    let
-        default =
-            Collage.defaultLine
-    in
-        { default | width = weekBorder }
+    Collage.solid weekBorder (Collage.uniform Color.black)

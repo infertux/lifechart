@@ -20,7 +20,7 @@ roundToPadded precision float =
             truncate (logBase 10 rounded) + 1
 
         baseString =
-            toString rounded
+            String.fromFloat rounded
 
         string =
             if String.contains "." baseString then

@@ -7,9 +7,8 @@ module Lifechart.Serializer
         )
 
 import Color exposing (Color)
-import Color.Convert
+import ColorExtra
 import Date exposing (Date)
-import DateExtra
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Base64
@@ -21,7 +20,7 @@ serialize model =
     Base64.encode <| serializeJson model
 
 
-deserialize : String -> Result String Model
+deserialize : String -> Result String JsonModel
 deserialize base64 =
     case Base64.decode base64 of
         Err error ->
@@ -35,12 +34,12 @@ serializeJson : Model -> String
 serializeJson model =
     Encode.encode 2 <|
         Encode.object
-            [ "birth-date" => encodeDate model.birthDate
-            , "life-expectancy" => Encode.int model.lifeExpectancy
-            , "kid-until" => Encode.int model.kidUntil
-            , "old-from" => Encode.int model.oldFrom
-            , "only-adult-years" => Encode.bool model.onlyAdultYears
-            , "events" => (Encode.list <| List.map encodeEvent model.events)
+            [ ( "birth-date", encodeDate model.birthDate )
+            , ( "life-expectancy", Encode.int model.lifeExpectancy )
+            , ( "kid-until", Encode.int model.kidUntil )
+            , ( "old-from", Encode.int model.oldFrom )
+            , ( "only-adult-years", Encode.bool model.onlyAdultYears )
+            , ( "events", Encode.list encodeEvent model.events )
             ]
 
 
@@ -55,26 +54,20 @@ jsonDecoder =
         (Decode.field "events" <| Decode.list eventDecoder)
 
 
-deserializeJson : String -> Result String Model
+deserializeJson : String -> Result String JsonModel
 deserializeJson json =
-    case
-        Decode.decodeString jsonDecoder json
-    of
-        Err error ->
-            Err error
-
-        Ok jsonModel ->
-            Ok (mergeJsonModel jsonModel)
+    Decode.decodeString jsonDecoder json
+        |> Result.mapError Decode.errorToString
 
 
 encodeEvent : Event -> Encode.Value
 encodeEvent event =
     Encode.object
-        [ "from" => encodeDate event.from
-        , "to" => encodeDate event.to
-        , "color" => encodeColor event.color
-        , "label" => Encode.string event.label
-        , "overlay" => Encode.bool event.overlay
+        [ ( "from", encodeDate event.from )
+        , ( "to", encodeDate event.to )
+        , ( "color", encodeColor event.color )
+        , ( "label", Encode.string event.label )
+        , ( "overlay", Encode.bool event.overlay )
         ]
 
 
@@ -90,15 +83,15 @@ eventDecoder =
 
 encodeDate : Date -> Encode.Value
 encodeDate date =
-    Encode.string <| DateExtra.toISOString date
+    Encode.string <| Date.toIsoString date
 
 
-dateDecoder : Decode.Decoder Date.Date
+dateDecoder : Decode.Decoder Date
 dateDecoder =
     Decode.string
         |> Decode.andThen
             (\string ->
-                case Date.fromString string of
+                case Date.fromIsoString string of
                     Ok date ->
                         Decode.succeed date
 
@@ -109,7 +102,7 @@ dateDecoder =
 
 encodeColor : Color -> Encode.Value
 encodeColor color =
-    Encode.string <| Color.Convert.colorToHex color
+    Encode.string <| ColorExtra.toHex color
 
 
 colorDecoder : Decode.Decoder Color
@@ -117,8 +110,7 @@ colorDecoder =
     Decode.string
         |> Decode.andThen
             (\hex ->
-                Color.Convert.hexToColor hex
-                    |> Result.toMaybe
+                ColorExtra.fromHex hex
                     |> Maybe.withDefault fallbackColor
                     |> Decode.succeed
             )

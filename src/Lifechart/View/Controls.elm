@@ -1,10 +1,9 @@
 module Lifechart.View.Controls exposing (controls, modal)
 
-import Date exposing (Date)
-import Time exposing (Time)
+import Date
 import BasicsExtra exposing (roundToPadded)
 import DateExtra
-import Color.Convert
+import ColorExtra
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -26,7 +25,7 @@ modal model =
             Serializer.serializeJson model
     in
         div
-            [ style [ "display" => open ], class "modal in" ]
+            [ style "display" open, class "modal in" ]
             [ div [ class "modal-dialog" ]
                 [ div [ class "modal-content" ]
                     [ div [ class "modal-body" ]
@@ -84,14 +83,29 @@ links model =
         ]
 
 
-circled : Attribute Msg
+circled : List (Attribute Msg)
 circled =
-    style
-        [ ( "background", "#D3D7CF" )
-        , ( "border-radius", "1rem" )
-        , ( "padding", "0 0.35rem" )
-        , ( "margin-left", "0.2rem" )
-        ]
+    [ style "background" "#D3D7CF"
+    , style "border-radius" "1rem"
+    , style "padding" "0 0.35rem"
+    , style "margin-left" "0.2rem"
+    ]
+
+
+{-| A button that looks like a link, for in-page actions (`javascript:` URLs
+are blocked by Elm 0.19)
+-}
+actionLink : Msg -> List (Attribute Msg) -> List (Html Msg) -> Html Msg
+actionLink msg attributes =
+    button
+        ([ type_ "button"
+         , class "btn btn-link p-0 border-0 align-baseline"
+         , style "font-size" "inherit"
+         , style "line-height" "inherit"
+         , onClick msg
+         ]
+            ++ attributes
+        )
 
 
 config : Model -> List (Html Msg)
@@ -103,7 +117,7 @@ config model =
                 (List.append dateInputAttributes
                     [ class "form-control form-control-lg"
                     , value model.birthDateString
-                    , Html.Attributes.max <| DateExtra.toISOString <| Date.fromTime model.now
+                    , Html.Attributes.max <| Date.toIsoString <| today model
                     , onInput NewBirthDate
                     ]
                 )
@@ -114,11 +128,12 @@ config model =
         [ label [ class "col-5 col-form-label col-form-label-lg" ]
             [ text "Life Expectancy "
             , a
-                [ href
+                ([ href
                     "https://en.wikipedia.org/wiki/List_of_countries_by_life_expectancy"
-                , target "_blank"
-                , circled
-                ]
+                 , target "_blank"
+                 ]
+                    ++ circled
+                )
                 [ text "?" ]
             ]
         , div [ class "col-7" ]
@@ -138,11 +153,12 @@ config model =
         [ label [ class "col-5 col-form-label col-form-label-lg" ]
             [ text "Non-Adult Years "
             , a
-                [ href
+                ([ href
                     "https://www.reddit.com/r/GetMotivated/comments/1vyf9r/made_for_myself_thought_of_you_weeks_left/cexas8u/"
-                , target "_blank"
-                , circled
-                ]
+                 , target "_blank"
+                 ]
+                    ++ circled
+                )
                 [ text "?" ]
             ]
         , div [ class "col-7" ]
@@ -176,11 +192,8 @@ newEvent model =
     [ li [ class "list-group-item" ]
         [ h5 [ class "mb-0" ]
             [ span [] [ text "Events" ]
-            , a
-                [ href "javascript:void(0)"
-                , onClick (ShowEventForm 0)
-                , class "float-right"
-                ]
+            , actionLink (ShowEventForm 0)
+                [ class "float-right" ]
                 [ text "Add event" ]
             ]
         ]
@@ -200,13 +213,13 @@ eventForm model index =
             else
                 " d-none"
 
-        newEvent =
+        isNewEvent =
             index == 0
 
         delete =
-            a
-                [ class "btn btn-danger"
-                , href "javascript:void(0)"
+            button
+                [ type_ "button"
+                , class "btn btn-danger"
                 , onClick DeleteEvent
                 ]
                 [ text "Delete" ]
@@ -216,7 +229,7 @@ eventForm model index =
                 [ class "btn btn-primary ml-1"
                 , type_ "submit"
                 , value
-                    (if newEvent then
+                    (if isNewEvent then
                         "Add"
                      else
                         "Save"
@@ -225,7 +238,7 @@ eventForm model index =
                 []
 
         actions =
-            if newEvent then
+            if isNewEvent then
                 [ submit ]
             else
                 [ delete, submit ]
@@ -286,7 +299,7 @@ eventForm model index =
                     , div [ class "col" ]
                         [ label
                             [ class "form-check-inline"
-                            , style [ "line-height" => "2.5rem" ]
+                            , style "line-height" "2.5rem"
                             ]
                             [ input
                                 [ class "form-check-input"
@@ -307,7 +320,7 @@ eventForm model index =
                             , type_ "color"
                             , required True
                             , value event.color
-                            , style [ "height" => "2.5rem" ]
+                            , style "height" "2.5rem"
                             , onInput (UpdateEvent EventColor)
                             ]
                             []
@@ -333,19 +346,15 @@ events model =
                         ]
                     , div [ class "col-7 text-right text-muted" ]
                         [ text <|
-                            DateExtra.toISOString event.from
+                            Date.toIsoString event.from
                                 ++ " to "
-                                ++ DateExtra.toISOString event.to
+                                ++ Date.toIsoString event.to
                                 ++ " ("
-                                ++ eventPercentage event model
+                                ++ eventPercentage event
                                 ++ "%)"
                         ]
                     , div [ class "col-2 text-right" ]
-                        [ a
-                            [ href "javascript:void(0)"
-                            , onClick (ShowEventForm index)
-                            ]
-                            [ text "edit" ]
+                        [ actionLink (ShowEventForm index) [] [ text "edit" ]
                         ]
                     ]
                 ]
@@ -355,24 +364,22 @@ events model =
         eventIcon event =
             div
                 [ class "float-left"
-                , style
-                    [ "width" => "1rem"
-                    , "height" => "1rem"
-                    , "line-height" => "1rem"
-                    , "font-weight" => "bold"
-                    , "color" => "#FFFFFF"
-                    , "margin" => "3px 0.5rem 0 0"
-                    , "padding"
-                        => if event.overlay then
-                            "0 0 3px 3px"
-                           else
-                            "0"
-                    , "background-color"
-                        => if event.overlay then
-                            "#000000"
-                           else
-                            Color.Convert.colorToHex event.color
-                    ]
+                , style "width" "1rem"
+                , style "height" "1rem"
+                , style "line-height" "1rem"
+                , style "font-weight" "bold"
+                , style "color" "#FFFFFF"
+                , style "margin" "3px 0.5rem 0 0"
+                , style "padding" <|
+                    if event.overlay then
+                        "0 0 3px 3px"
+                    else
+                        "0"
+                , style "background-color" <|
+                    if event.overlay then
+                        "#000000"
+                    else
+                        ColorExtra.toHex event.color
                 ]
                 [ text <|
                     if event.overlay then
@@ -381,14 +388,14 @@ events model =
                         ""
                 ]
 
-        eventPercentage event model =
+        eventPercentage event =
             100
-                * (Date.toTime event.to - Date.toTime event.from)
-                / (Date.toTime (relativeDeathDate model) - Date.toTime (relativeBirthDate model))
+                * (DateExtra.toTime event.to - DateExtra.toTime event.from)
+                / (DateExtra.toTime (relativeDeathDate model) - DateExtra.toTime (relativeBirthDate model))
                 |> roundToPadded 1
 
         list =
-            if List.isEmpty events then
+            if List.isEmpty model.events then
                 [ li [ class "list-group-item" ]
                     [ div [ class "text-muted text-center" ] [ text "no events yet" ]
                     ]
@@ -397,10 +404,7 @@ events model =
                 List.concat <|
                     List.indexedMap
                         (\index -> \event -> makeEvent event (index + 1))
-                        events
-
-        events =
-            model.events
+                        model.events
     in
         [ div [ class "card mt-4 mb-4" ]
             [ ul [ class "list-group list-group-flush" ] <|
@@ -417,8 +421,8 @@ metrics model =
 
         percentage =
             100
-                * (model.now - Date.toTime (relativeBirthDate model))
-                / (Date.toTime (relativeDeathDate model) - Date.toTime (relativeBirthDate model))
+                * (nowTime model - DateExtra.toTime (relativeBirthDate model))
+                / (DateExtra.toTime (relativeDeathDate model) - DateExtra.toTime (relativeBirthDate model))
                 |> clamp 0 100
                 |> roundToPadded 6
     in
@@ -434,11 +438,11 @@ metrics model =
             [ div [ class "col-12" ]
                 [ div
                     [ class "progress"
-                    , style [ "height" => "1.7rem" ]
+                    , style "height" "1.7rem"
                     ]
                     [ div
                         [ class "progress-bar progress-bar-striped progress-bar-animated"
-                        , style [ "width" => (percentage ++ "%") ]
+                        , style "width" (percentage ++ "%")
                         ]
                         []
                     ]
@@ -463,7 +467,7 @@ footer =
                 , text " - "
                 , a [ href "https://github.com/infertux/lifechart", target "_blank" ] [ text "Source code" ]
                 , text " - "
-                , a [ href "javascript:void(0)", onClick ToggleModal ] [ text "Export raw data" ]
+                , actionLink ToggleModal [] [ text "Export raw data" ]
                 ]
             , div [ class "d-none" ]
                 [ strong [] [ text "Reminder: " ]
@@ -489,9 +493,9 @@ weeksLeft : Model -> String
 weeksLeft model =
     let
         left =
-            Date.toTime (relativeDeathDate model) - model.now
+            DateExtra.toTime (relativeDeathDate model) - nowTime model
 
         weeks =
-            (Time.inHours left) / 24 / 7 |> Basics.max 0
+            left / (7 * 24 * 60 * 60 * 1000) |> Basics.max 0
     in
         roundToPadded 6 weeks
