@@ -80,12 +80,19 @@ links model =
     let
         current =
             Serializer.serialize model
+
+        demo =
+            Serializer.deserialize Demo.base64
+                |> Result.map (mergeJsonModel model >> Serializer.serialize)
+
+        navLink isActive =
+            classList [ ( "nav-link", True ), ( "active", isActive ) ]
     in
     [ ul [ class "nav justify-content-center mb-2" ]
         [ li [ class "nav-item" ]
-            [ a [ class "nav-link active", href "#" ] [ text "blank chart" ] ]
+            [ a [ navLink (current == Serializer.serialize (initialModel model.key)), href "#" ] [ text "blank chart" ] ]
         , li [ class "nav-item" ]
-            [ a [ class "nav-link", href <| "#" ++ Demo.base64 ] [ text "demo chart" ] ]
+            [ a [ navLink (demo == Ok current), href <| "#" ++ Demo.base64 ] [ text "demo chart" ] ]
         , li [ class "nav-item" ]
             [ a [ class "nav-link", href <| "#" ++ current ] [ text "bookmark your own chart" ] ]
         ]

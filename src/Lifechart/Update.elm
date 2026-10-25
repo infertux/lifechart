@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation as Navigation
 import ColorExtra
 import Date
+import Lifechart.Demo as Demo
 import Lifechart.Model exposing (..)
 import Lifechart.Serializer as Serializer
 import Regex
@@ -20,8 +21,18 @@ init _ url key =
 
         model =
             decodeModel baseModel url |> Result.withDefault baseModel
+
+        -- first-time visitors get the demo chart, written into the URL so
+        -- that editing it and bookmarking work as usual
+        showDemo =
+            case url.fragment of
+                Nothing ->
+                    Navigation.replaceUrl model.key ("#" ++ Demo.base64)
+
+                Just _ ->
+                    Cmd.none
     in
-    ( model, Task.perform Tick Time.now )
+    ( model, Cmd.batch [ showDemo, Task.perform Tick Time.now ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -212,16 +223,19 @@ update msg model =
 
 decodeModel : Model -> Url -> Result String Model
 decodeModel model url =
-    let
-        dataWithoutHash =
-            Maybe.withDefault "" url.fragment
-    in
-    if String.isEmpty dataWithoutHash then
-        Ok (mergeModel model (initialModel model.key))
+    case url.fragment of
+        -- no fragment at all: show the demo chart
+        Nothing ->
+            Serializer.deserialize Demo.base64
+                |> Result.map (mergeJsonModel model)
 
-    else
-        Serializer.deserialize dataWithoutHash
-            |> Result.map (mergeJsonModel model)
+        -- an empty fragment ("#") is the blank chart
+        Just "" ->
+            Ok (mergeModel model (initialModel model.key))
+
+        Just dataWithoutHash ->
+            Serializer.deserialize dataWithoutHash
+                |> Result.map (mergeJsonModel model)
 
 
 updateUrl : Model -> Cmd Msg
