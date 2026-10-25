@@ -14,7 +14,9 @@ type alias Model =
     { birthDate : Date
     , birthDateString : String
     , kidUntil : Int
+    , kidUntilString : String
     , oldFrom : Int
+    , oldFromString : String
     , lifeExpectancy : Int
     , lifeExpectancyString : String
     , onlyAdultYears : Bool
@@ -74,7 +76,9 @@ initialModel key =
     { birthDate = Date.fromCalendarDate 1988 Time.Jul 24
     , birthDateString = "1988-07-24"
     , kidUntil = 18
+    , kidUntilString = "18"
     , oldFrom = 70
+    , oldFromString = "70"
     , lifeExpectancy = 80
     , lifeExpectancyString = "80"
     , onlyAdultYears = False
@@ -93,7 +97,9 @@ mergeJsonModel model jsonModel =
         | birthDate = jsonModel.birthDate
         , birthDateString = Date.toIsoString jsonModel.birthDate
         , kidUntil = jsonModel.kidUntil
+        , kidUntilString = String.fromInt jsonModel.kidUntil
         , oldFrom = jsonModel.oldFrom
+        , oldFromString = String.fromInt jsonModel.oldFrom
         , lifeExpectancy = jsonModel.lifeExpectancy
         , lifeExpectancyString = String.fromInt jsonModel.lifeExpectancy
         , onlyAdultYears = jsonModel.onlyAdultYears

@@ -230,7 +230,7 @@ adultYears model =
                 [ class "form-control form-control-lg"
                 , type_ "number"
                 , required True
-                , value (String.fromInt value_)
+                , value value_
                 , Html.Attributes.min "0"
                 , Html.Attributes.max "500"
                 , onInput msg
@@ -241,10 +241,10 @@ adultYears model =
         [ label [ class "col-5 col-form-label col-form-label-lg" ] [ text "Adult Years" ]
         , div [ class "col-7" ]
             [ div [ class "input-group input-group-lg" ]
-                [ yearInput model.kidUntil NewKidUntil
+                [ yearInput model.kidUntilString NewKidUntil
                 , div [ class "input-group-append input-group-prepend" ]
                     [ span [ class "input-group-text" ] [ text "to" ] ]
-                , yearInput model.oldFrom NewOldFrom
+                , yearInput model.oldFromString NewOldFrom
                 ]
             ]
         ]

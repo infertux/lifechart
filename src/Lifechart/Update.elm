@@ -99,36 +99,44 @@ update msg model =
                 ( newModel, updateUrl newModel )
 
         NewKidUntil string ->
+            let
+                stringModel =
+                    { model | kidUntilString = string }
+            in
             case String.toInt string of
                 Just int ->
                     if int < 0 || int >= model.oldFrom || int > kidUntilLimit model then
-                        ( model, Cmd.none )
+                        ( stringModel, Cmd.none )
 
                     else
                         let
                             newModel =
-                                { model | kidUntil = int }
+                                { stringModel | kidUntil = int }
                         in
                         ( newModel, updateUrl newModel )
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( stringModel, Cmd.none )
 
         NewOldFrom string ->
+            let
+                stringModel =
+                    { model | oldFromString = string }
+            in
             case String.toInt string of
                 Just int ->
                     if int <= model.kidUntil || int > 500 then
-                        ( model, Cmd.none )
+                        ( stringModel, Cmd.none )
 
                     else
                         let
                             newModel =
-                                { model | oldFrom = int }
+                                { stringModel | oldFrom = int }
                         in
                         ( newModel, updateUrl newModel )
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( stringModel, Cmd.none )
 
         OnlyAdultYears bool ->
             let
