@@ -84,8 +84,24 @@ oneWeek =
     oneDay * 7
 
 
-canvas : Model -> Html Msg
-canvas model =
+{-| Takes the chart's inputs one by one so that `Html.Lazy` can skip redrawing
+the chart when none of them changed
+-}
+canvas : Date.Date -> Int -> Int -> Int -> Bool -> List Event -> Int -> Html Msg
+canvas birthDate kidUntil oldFrom lifeExpectancy onlyAdultYears events nowMillis =
+    draw
+        { birthDate = birthDate
+        , kidUntil = kidUntil
+        , oldFrom = oldFrom
+        , lifeExpectancy = lifeExpectancy
+        , onlyAdultYears = onlyAdultYears
+        , events = events
+        , now = Time.millisToPosix nowMillis
+        }
+
+
+draw : Chart {} -> Html Msg
+draw model =
     let
         height =
             lineHeight * 2 + canvasHeight (toFloat model.lifeExpectancy)
@@ -109,7 +125,7 @@ canvas model =
     Collage.Render.svgBox ( canvasWidth, toFloat (ceiling height) ) form
 
 
-legend : Model -> Form
+legend : Chart {} -> Form
 legend model =
     let
         makeText string =
@@ -172,7 +188,7 @@ legend model =
     Collage.group [ kid, kidMark, adult, oldMark, old ]
 
 
-years : Model -> List Form
+years : Chart {} -> List Form
 years model =
     let
         makeYear i =
@@ -205,7 +221,7 @@ weekIndexes =
         |> Collage.shift ( indexWidth, -10 )
 
 
-year : Model -> Int -> List Form
+year : Chart {} -> Int -> List Form
 year model index =
     let
         calendarYear =
@@ -227,7 +243,7 @@ year model index =
     label :: (List.range 1 52 |> List.map makeWeek)
 
 
-week : Model -> Int -> Int -> Form
+week : Chart {} -> Int -> Int -> Form
 week model yearIndex weekIndex =
     let
         time =
@@ -306,13 +322,13 @@ mixColors colors =
                     otherColors
 
 
-outOfBounds : Model -> Time -> Bool
+outOfBounds : Chart {} -> Time -> Bool
 outOfBounds model time =
     (time < DateExtra.toTime (relativeBirthDate model))
         || (time > DateExtra.toTime (relativeDeathDate model))
 
 
-isCurrentWeek : Model -> Time -> Bool
+isCurrentWeek : Chart {} -> Time -> Bool
 isCurrentWeek model time =
     let
         now =
@@ -324,12 +340,12 @@ isCurrentWeek model time =
     now - halfWeek <= time && time < now + halfWeek
 
 
-isPast : Model -> Time -> Bool
+isPast : Chart {} -> Time -> Bool
 isPast model time =
     time < nowTime model
 
 
-isKid : Model -> Time -> Bool
+isKid : Chart {} -> Time -> Bool
 isKid model time =
     let
         kidDate =
@@ -342,7 +358,7 @@ isKid model time =
         DateExtra.toTime kidDate >= time
 
 
-isOld : Model -> Time -> Bool
+isOld : Chart {} -> Time -> Bool
 isOld model time =
     let
         oldDate =
@@ -355,7 +371,7 @@ isOld model time =
         DateExtra.toTime oldDate <= time
 
 
-yearWeekToTime : Model -> ( Int, Int ) -> Time
+yearWeekToTime : Chart {} -> ( Int, Int ) -> Time
 yearWeekToTime model ( yearIndex, weekIndex ) =
     let
         currentYear =
