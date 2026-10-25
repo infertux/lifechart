@@ -98,6 +98,38 @@ update msg model =
                 in
                 ( newModel, updateUrl newModel )
 
+        NewKidUntil string ->
+            case String.toInt string of
+                Just int ->
+                    if int < 0 || int >= model.oldFrom || int > kidUntilLimit model then
+                        ( model, Cmd.none )
+
+                    else
+                        let
+                            newModel =
+                                { model | kidUntil = int }
+                        in
+                        ( newModel, updateUrl newModel )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        NewOldFrom string ->
+            case String.toInt string of
+                Just int ->
+                    if int <= model.kidUntil || int > 500 then
+                        ( model, Cmd.none )
+
+                    else
+                        let
+                            newModel =
+                                { model | oldFrom = int }
+                        in
+                        ( newModel, updateUrl newModel )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
         OnlyAdultYears bool ->
             let
                 -- TODO: fix this dirty hack somehow
@@ -248,6 +280,17 @@ updateUrl model =
             "#" ++ base64
     in
     Navigation.pushUrl model.key url
+
+
+{-| Hiding non-adult years needs the chart to start before it ends
+-}
+kidUntilLimit : Model -> Int
+kidUntilLimit model =
+    if model.onlyAdultYears then
+        model.lifeExpectancy
+
+    else
+        500
 
 
 minLifeExpectancy : Model -> Int

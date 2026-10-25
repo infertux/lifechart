@@ -152,6 +152,8 @@ type Msg
     | NewBirthDate String
     | NewLifeExpectancy String
     | OnlyAdultYears Bool
+    | NewKidUntil String
+    | NewOldFrom String
     | ShowEventForm Int
     | UpdateEvent NewEventField String
     | UpdateEventOverlay Bool
