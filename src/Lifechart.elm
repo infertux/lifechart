@@ -21,5 +21,6 @@ main =
 
 subscriptions : Model.Model -> Sub Model.Msg
 subscriptions model =
-    -- every 10 seconds (Time.every takes milliseconds)
-    Time.every (10 * 1000) Model.Tick
+    -- every second so that the weeks left tick like a clock (Time.every takes
+    -- milliseconds)
+    Time.every 1000 Model.Tick
