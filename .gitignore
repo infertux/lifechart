@@ -1,3 +1,6 @@
 /elm-stuff/
 /public/lifechart*.js
 /mine.url
+/node_modules/
+/test-results/
+/playwright-report/

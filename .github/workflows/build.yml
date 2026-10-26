@@ -31,6 +31,21 @@ jobs:
       - name: Build
         run: make
 
+      - name: Install Playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Test
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
+
       - uses: actions/upload-pages-artifact@v5
         with:
           path: public/
