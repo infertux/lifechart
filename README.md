@@ -33,7 +33,15 @@ Elm apps can't run from a `file://` URL, so serve the `public` folder over HTTP 
 python3 -m http.server --directory public
 ```
 
-Every push to `master` is checked with `elm-format`, built and deployed to GitHub Pages by the [build workflow](.github/workflows/build.yml).
+The [Playwright](https://playwright.dev/) tests in `tests/` drive the built app in a real browser, covering the main features and checking that invalid input never breaks the page. Build with `make` first, then run them (they serve `public` themselves):
+
+```sh
+npm install
+npx playwright install chromium
+npx playwright test
+```
+
+Every push to `master` is checked with `elm-format`, built, tested and deployed to GitHub Pages by the [build workflow](.github/workflows/build.yml), which also builds and tests every pull request.
 
 ## Elm
 
