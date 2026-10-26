@@ -145,8 +145,8 @@ actionLink msg attributes =
 config : Model -> List (Html Msg)
 config model =
     [ div [ class "row form-group" ]
-        [ label [ class "col-5 col-form-label col-form-label-lg" ] [ text "Date of Birth" ]
-        , div [ class "col-7" ]
+        [ label [ class "col-6 col-form-label col-form-label-lg" ] [ text "Date of Birth" ]
+        , div [ class "col-6" ]
             [ input
                 (List.append dateInputAttributes
                     [ class "form-control form-control-lg"
@@ -159,7 +159,7 @@ config model =
             ]
         ]
     , div [ class "row form-group" ]
-        [ label [ class "col-5 col-form-label col-form-label-lg" ]
+        [ label [ class "col-6 col-form-label col-form-label-lg" ]
             [ text "Life Expectancy "
             , a
                 ([ href
@@ -170,7 +170,7 @@ config model =
                 )
                 [ text "?" ]
             ]
-        , div [ class "col-7" ]
+        , div [ class "col-6" ]
             [ input
                 [ class "form-control form-control-lg"
                 , type_ "number"
@@ -185,7 +185,7 @@ config model =
         ]
     , adultYears model
     , div [ class "row form-group" ]
-        [ label [ class "col-5 col-form-label col-form-label-lg" ]
+        [ label [ class "col-6 col-form-label col-form-label-lg" ]
             [ text "Non-Adult Years "
             , a
                 ([ href
@@ -196,7 +196,7 @@ config model =
                 )
                 [ text "?" ]
             ]
-        , div [ class "col-7" ]
+        , div [ class "col-6" ]
             [ label [ class "form-check-inline form-control-lg" ]
                 [ input
                     [ class "form-check-input"
@@ -238,8 +238,8 @@ adultYears model =
                 []
     in
     div [ class "row form-group" ]
-        [ label [ class "col-5 col-form-label col-form-label-lg" ] [ text "Adult Years" ]
-        , div [ class "col-7" ]
+        [ label [ class "col-6 col-form-label col-form-label-lg" ] [ text "Adult Years" ]
+        , div [ class "col-6" ]
             [ div [ class "input-group input-group-lg" ]
                 [ yearInput model.kidUntilString 0 (model.oldFrom - 1) NewKidUntil
                 , div [ class "input-group-append input-group-prepend" ]
