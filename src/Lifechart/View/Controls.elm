@@ -561,6 +561,8 @@ footer =
             [ div [ class "alert alert-info" ]
                 [ strong [] [ text "Privacy: " ]
                 , text "this page runs entirely in your browser so no data is sent to any server."
+                , span [ class "d-none d-md-inline" ]
+                    [ text " The catch is that your chart is saved in the page address, so press Ctrl+D or ⌘D to bookmark it again after every change." ]
                 ]
             , p [ class "text-center" ]
                 [ text "Inspired by "
