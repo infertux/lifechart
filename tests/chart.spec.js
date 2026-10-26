@@ -112,6 +112,20 @@ test('the metric badges stay aligned at any big-screen width', async ({ page }) 
   }
 })
 
+test('the help links stay on the label line at 1024px and wider', async ({ page }) => {
+  await openBlank(page)
+  const label = (name) => page.locator('label.col-form-label', { hasText: new RegExp('^' + name) })
+  for (const width of [1366, 1024]) {
+    await page.setViewportSize({ width, height: 900 })
+    // a wrapped label is two lines tall
+    const oneLine = (await label('Date of Birth').boundingBox()).height
+    for (const name of ['Life Expectancy', 'Non-Adult Years']) {
+      const { height } = await label(name).boundingBox()
+      expect(height, `${name} label at ${width}px`).toBeLessThan(oneLine * 1.5)
+    }
+  }
+})
+
 test('export shows the chart as JSON and imports edits', async ({ page }) => {
   await openBlank(page)
   await page.getByRole('button', { name: 'Export raw data' }).first().click()
