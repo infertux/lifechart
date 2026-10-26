@@ -527,13 +527,11 @@ metrics model =
             else
                 ( "% elapsed", " weeks left" )
     in
-    [ div [ class "row mt-2" ]
-        [ div [ class "col-12 col-sm text-center text-sm-left" ]
-            [ h4 [] [ span [ class "badge badge-primary" ] [ text <| percentage ++ elapsedLabel ] ]
-            ]
-        , div [ class "col-12 col-sm text-center text-sm-right" ]
-            [ h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ leftLabel ] ]
-            ]
+    [ -- side by side when they fit, otherwise the second one wraps under the
+      -- first and both stay left-aligned (centered on phones)
+      div [ class "d-flex flex-column flex-sm-row flex-sm-wrap align-items-center justify-content-sm-between mt-2" ]
+        [ h4 [ class "mr-sm-3" ] [ span [ class "badge badge-primary" ] [ text <| percentage ++ elapsedLabel ] ]
+        , h4 [] [ span [ class "badge badge-primary" ] [ text <| left ++ leftLabel ] ]
         ]
     , div [ class "row mt-1" ]
         [ div [ class "col-12" ]
