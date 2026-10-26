@@ -94,6 +94,24 @@ test('hiding non-adult years only counts adult years', async ({ page }) => {
   expect((await chartData(page))['only-adult-years']).toBe(true)
 })
 
+// the badges either share a row or stack flush left, never one on each side
+// of two different lines
+test('the metric badges stay aligned at any big-screen width', async ({ page }) => {
+  await openBlank(page)
+  for (const hide of [false, true]) {
+    if (hide) await page.getByLabel('Hide').check()
+    for (const width of [1366, 1024, 800]) {
+      await page.setViewportSize({ width, height: 900 })
+      const [elapsed, left] = await Promise.all(
+        [/elapsed/, /weeks left/].map((text) => badges(page).filter({ hasText: text }).boundingBox()),
+      )
+      const sameRow = Math.abs(elapsed.y - left.y) < 2
+      const stacked = left.y > elapsed.y && Math.abs(elapsed.x - left.x) < 2
+      expect(sameRow || stacked, `badges at ${width}px, hide=${hide}`).toBe(true)
+    }
+  }
+})
+
 test('export shows the chart as JSON and imports edits', async ({ page }) => {
   await openBlank(page)
   await page.getByRole('button', { name: 'Export raw data' }).first().click()
