@@ -76,6 +76,20 @@ test('events can be edited and deleted', async ({ page }) => {
   expect((await chartData(page)).events).toEqual([])
 })
 
+test('events shorter than a week still get a square', async ({ page }) => {
+  const events = [
+    { from: '2020-03-07', to: '2020-03-07', color: '#ff0000', fill: 'rgba(100%,0%,0%,1)' },
+    { from: '2020-04-04', to: '2020-04-07', color: '#00ff00', fill: 'rgba(0%,100%,0%,1)' },
+    // 2023 starts on a Sunday, the first day of the year still has a square
+    { from: '2023-01-01', to: '2023-01-01', color: '#0000ff', fill: 'rgba(0%,0%,100%,1)' },
+  ]
+  await page.goto(link({ ...blankData, events: events.map(({ fill, ...event }) => ({ ...event, label: fill, overlay: false })) }))
+
+  for (const { fill } of events) {
+    await expect(page.locator(`.chart svg rect[fill="${fill}"]`)).toHaveCount(1)
+  }
+})
+
 test('the weeks left clock ticks', async ({ page }) => {
   await openBlank(page)
   const weeksLeft = badges(page).filter({ hasText: 'weeks left' })
