@@ -294,8 +294,14 @@ week model yearIndex weekIndex =
         time =
             yearWeekToTime model ( yearIndex, weekIndex )
 
+        ( weekStart, weekEnd ) =
+            weekSpan model ( yearIndex, weekIndex )
+
+        -- events include their last day, and a week shows every event that
+        -- overlaps it, so that events shorter than a week still get a square
         match event =
-            (DateExtra.toTime event.from <= time) && (DateExtra.toTime event.to >= time)
+            (DateExtra.toTime event.from < weekEnd)
+                && (DateExtra.toTime event.to + oneDay > weekStart)
 
         ( overlays, events ) =
             List.filter match model.events |> List.partition .overlay
@@ -432,6 +438,34 @@ yearWeekToTime model ( yearIndex, weekIndex ) =
             toFloat (weekIndex - 1) * oneWeek + toFloat firstMondayOffset * oneDay
     in
     DateExtra.toTime beginningOfYear + yearOffset
+
+
+{-| The days a week square stands for, end excluded. A row has 52 squares for
+365 or 366 days, so the first square also takes the days from January 1st and
+the last one the days until December 31st, leaving no day without a square.
+-}
+weekSpan : Chart {} -> ( Int, Int ) -> ( Time, Time )
+weekSpan model ( yearIndex, weekIndex ) =
+    let
+        startOfYear index =
+            DateExtra.toTime
+                (Date.fromCalendarDate (Date.year model.birthDate + index) Time.Jan 1)
+
+        start =
+            if weekIndex == 1 then
+                startOfYear yearIndex
+
+            else
+                yearWeekToTime model ( yearIndex, weekIndex )
+
+        end =
+            if weekIndex == 52 then
+                startOfYear (yearIndex + 1)
+
+            else
+                yearWeekToTime model ( yearIndex, weekIndex + 1 )
+    in
+    ( start, end )
 
 
 lineStyle : LineStyle
